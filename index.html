@@ -32,22 +32,27 @@
         const formatCurrency = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v || 0);
 
         function App() {
+            // SEGURANÇA CONTRA TELA PRETA: Try/Catch no carregamento
             const [sellers, setSellers] = useState(() => {
-                const saved = localStorage.getItem('soitic_v13_sellers');
-                return saved ? JSON.parse(saved) : [
-                    { id: 1, name: 'Guilherme', sales: 0, contracts: 0, target: 6000, company: 'MEDSYSTEM' },
-                    { id: 2, name: 'Vanessa', sales: 0, contracts: 0, target: 6000, company: 'ECOS' },
-                    { id: 3, name: 'Luiz', sales: 0, contracts: 0, target: 3000, company: 'MEDSYSTEM' },
-                    { id: 4, name: 'João', sales: 0, contracts: 0, target: 3000, company: 'ECOS' }
-                ];
+                try {
+                    const saved = localStorage.getItem('soitic_v13_sellers');
+                    return saved ? JSON.parse(saved) : [
+                        { id: 1, name: 'Guilherme', sales: 0, contracts: 0, target: 6000, company: 'MEDSYSTEM' },
+                        { id: 2, name: 'Vanessa', sales: 0, contracts: 0, target: 6000, company: 'ECOS' },
+                        { id: 3, name: 'Luiz', sales: 0, contracts: 0, target: 3000, company: 'MEDSYSTEM' },
+                        { id: 4, name: 'João', sales: 0, contracts: 0, target: 3000, company: 'ECOS' }
+                    ];
+                } catch(e) { return []; }
             });
 
             const [companies, setCompanies] = useState(() => {
-                const saved = localStorage.getItem('soitic_v13_companies');
-                return saved ? JSON.parse(saved) : [
-                    { id: 'med', name: 'MEDSYSTEM', best26: 0, worst26: 0, same25: 0 },
-                    { id: 'ecos', name: 'ECOS', best26: 0, worst26: 0, same25: 0 }
-                ];
+                try {
+                    const saved = localStorage.getItem('soitic_v13_companies');
+                    return saved ? JSON.parse(saved) : [
+                        { id: 'med', name: 'MEDSYSTEM', best26: 0, worst26: 0, same25: 0 },
+                        { id: 'ecos', name: 'ECOS', best26: 0, worst26: 0, same25: 0 }
+                    ];
+                } catch(e) { return []; }
             });
 
             useEffect(() => {
@@ -55,7 +60,6 @@
                 localStorage.setItem('soitic_v13_companies', JSON.stringify(companies));
             }, [sellers, companies]);
 
-            // Cálculo dos Totais por Empresa
             const companyTotals = useMemo(() => {
                 return sellers.reduce((acc, s) => {
                     if (!acc[s.company]) acc[s.company] = { sales: 0, contracts: 0 };
@@ -95,50 +99,10 @@
 
             const Podium = ({ title, data, field, accentColor, symbol }) => (
                 <div className="bg-card rounded-2xl p-6 shadow-xl flex flex-col border border-[#27272a]">
-                    <div className="flex items-center gap-2 mb-8">
+                    <div className="flex items-center gap-2 mb-8 text-slate-400">
                         <div className={`p-2 rounded-xl ${accentColor} bg-opacity-20`}><TrophyIcon /></div>
-                        <h3 className="font-bold text-sm uppercase tracking-widest text-slate-400">{title}</h3>
+                        <h3 className="font-bold text-sm uppercase tracking-widest">{title}</h3>
                     </div>
                     <div className="flex items-end justify-center gap-3 h-36 mt-auto">
                         <div className="flex flex-col items-center w-full">
-                            <span className="text-[10px] font-bold text-slate-500 mb-1 truncate w-full text-center">{data[1]?.name}</span>
-                            <div className="w-full bg-[#27272a] h-16 rounded-t-xl flex items-center justify-center border-t border-white/5">
-                                <span className="text-[9px] font-mono font-bold text-slate-300">{symbol}{data[1]?.[field]}</span>
-                            </div>
-                        </div>
-                        <div className="flex flex-col items-center w-full">
-                            <span className="text-[11px] font-black text-white mb-1 truncate w-full text-center uppercase tracking-tighter italic">{data[0]?.name}</span>
-                            <div className={`w-full ${accentColor} h-28 rounded-t-xl flex flex-col items-center justify-center shadow-2xl border-t border-white/30`}>
-                                <span className="text-3xl font-black italic text-white">1º</span>
-                                <span className="text-[9px] font-bold text-white">{symbol}{data[0]?.[field]}</span>
-                            </div>
-                        </div>
-                        <div className="flex flex-col items-center w-full opacity-40">
-                            <span className="text-[10px] font-bold text-slate-600 mb-1 truncate w-full text-center">{data[2]?.name}</span>
-                            <div className="w-full bg-[#27272a]/40 h-10 rounded-t-xl flex items-center justify-center border-t border-white/5">
-                                <span className="text-[8px] font-bold opacity-30">{symbol}{data[2]?.[field]}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            );
-
-            return (
-                <div className="min-h-screen">
-                    <header className="border-b border-[#27272a] bg-[#09090b] sticky top-0 z-50">
-                        <div className="max-w-5xl mx-auto px-6 py-6 flex items-center justify-between">
-                            <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-yellow-600 flex items-center justify-center shadow-lg text-white"><TrophyIcon /></div>
-                                <div>
-                                    <h1 className="text-xl font-black tracking-tighter text-white uppercase italic">Grupo <span className="text-amber-500 tracking-normal">Soitic</span></h1>
-                                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.4em]">Ranking Comercial</p>
-                                </div>
-                            </div>
-                            <button onClick={resetAll} className="text-[10px] font-bold border border-red-900/50 text-red-500 px-4 py-2 rounded-lg hover:bg-red-500 hover:text-white transition-all uppercase">Zerar Dados</button>
-                        </div>
-                    </header>
-
-                    <div className="max-w-5xl mx-auto px-6 py-10 space-y-12">
-                        {/* PÓDIOS */}
-                        <div className="grid md:grid-cols-2 gap-8">
-                            <Podium title="Contratos Aceitos" data={sortedContracts}
+                            <span className="text-[10px] font-bold text-slate-500 mb-1 truncate w-full text-center">{data[1]?.name || '---'}</span>
