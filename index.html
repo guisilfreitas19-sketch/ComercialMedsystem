@@ -3,43 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Financeiro - Tela Única</title>
+    <title>Dashboard Financeiro Slim</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        body { font-family: 'Inter', sans-serif; overflow: hidden; } /* Trava o scroll */
-        .glass-card { background: rgba(255, 255, 255, 0.98); height: 95vh; }
-        .input-focus { transition: all 0.2s ease; }
-        .input-focus:focus { background: #f8fafc; border-color: #cbd5e1; }
+        body { font-family: 'Inter', sans-serif; overflow: hidden; }
+        .glass-card { background: rgba(255, 255, 255, 0.98); height: 97vh; }
+        input::placeholder { color: #e2e8f0; }
     </style>
 </head>
 <body class="bg-slate-900 p-2 italic text-slate-800">
 
-    <div class="max-w-full mx-auto grid grid-cols-2 gap-4">
+    <div class="max-w-full mx-auto grid grid-cols-2 gap-3">
         
         <div class="glass-card rounded-3xl p-4 shadow-2xl border-b-4 border-emerald-500 flex flex-col">
-            <h2 class="text-xl font-black text-emerald-700 mb-3 flex items-center gap-2">
-                <span class="bg-emerald-100 p-1.5 rounded-lg text-sm">🌱</span> ECOS
-            </h2>
+            <h2 class="text-2xl font-black text-emerald-700 mb-4 tracking-tighter uppercase text-center">ECOS</h2>
             
-            <div class="space-y-3 flex-grow">
-                <div class="bg-slate-50 p-3 rounded-2xl border border-slate-100">
-                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Faturamento Atual</label>
-                    <input type="text" id="ecos-atual" oninput="mascara(this, 'ecos', 'atual')" class="input-focus w-full bg-white border-2 border-emerald-100 p-2 rounded-xl text-2xl font-black text-emerald-600 outline-none text-center" placeholder="R$ 0,00">
+            <div class="space-y-4 flex-grow">
+                <div class="bg-slate-50 p-2 rounded-2xl border border-slate-100">
+                    <label class="text-[8px] font-black text-slate-400 uppercase tracking-widest block mb-1 text-center">Faturamento Atual</label>
+                    <input type="text" id="ecos-atual" oninput="mascara(this, 'ecos', 'atual')" class="w-full bg-white border-2 border-emerald-100 p-2 rounded-xl text-3xl font-black text-emerald-600 outline-none text-center" placeholder="R$ 0,00">
                 </div>
 
                 <div class="grid grid-cols-3 gap-2">
                     <div class="bg-white p-2 rounded-xl border border-slate-200">
-                        <label class="text-[8px] font-bold text-slate-400 uppercase block text-center">Março 2025</label>
-                        <input type="text" id="ecos-ref2025" oninput="mascara(this, 'ecos', 'ref2025')" class="w-full text-center font-bold text-xs outline-none" placeholder="R$ 0,00">
+                        <label class="text-[7px] font-bold text-slate-400 uppercase block text-center">Março 2025</label>
+                        <input type="text" id="ecos-ref2025" oninput="mascara(this, 'ecos', 'ref2025')" class="w-full text-center font-bold text-[11px] outline-none" placeholder="R$ 0,00">
                     </div>
                     <div class="bg-white p-2 rounded-xl border border-slate-200">
-                        <label class="text-[8px] font-bold text-slate-400 uppercase block text-center">Pior 2026</label>
-                        <input type="text" id="ecos-pior2026" oninput="mascara(this, 'ecos', 'pior2026')" class="w-full text-center font-bold text-xs outline-none" placeholder="R$ 0,00">
+                        <label class="text-[7px] font-bold text-slate-400 uppercase block text-center">Pior 2026</label>
+                        <input type="text" id="ecos-pior2026" oninput="mascara(this, 'ecos', 'pior2026')" class="w-full text-center font-bold text-[11px] outline-none" placeholder="R$ 0,00">
                     </div>
                     <div class="bg-white p-2 rounded-xl border border-slate-200">
-                        <label class="text-[8px] font-bold text-slate-400 uppercase block text-center">Recorde</label>
-                        <input type="text" id="ecos-melhor2026" oninput="mascara(this, 'ecos', 'melhor2026')" class="w-full text-center font-bold text-xs outline-none" placeholder="R$ 0,00">
+                        <label class="text-[7px] font-bold text-slate-400 uppercase block text-center">Melhor 2026</label>
+                        <input type="text" id="ecos-melhor2026" oninput="mascara(this, 'ecos', 'melhor2026')" class="w-full text-center font-bold text-[11px] outline-none" placeholder="R$ 0,00">
                     </div>
                 </div>
 
@@ -48,28 +45,26 @@
         </div>
 
         <div class="glass-card rounded-3xl p-4 shadow-2xl border-b-4 border-indigo-500 flex flex-col">
-            <h2 class="text-xl font-black text-indigo-700 mb-3 flex items-center gap-2">
-                <span class="bg-indigo-100 p-1.5 rounded-lg text-sm">🏥</span> MEDSYSTEM
-            </h2>
+            <h2 class="text-2xl font-black text-indigo-700 mb-4 tracking-tighter uppercase text-center">MEDSYSTEM</h2>
             
-            <div class="space-y-3 flex-grow">
-                <div class="bg-slate-50 p-3 rounded-2xl border border-slate-100">
-                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Faturamento Atual</label>
-                    <input type="text" id="med-atual" oninput="mascara(this, 'med', 'atual')" class="input-focus w-full bg-white border-2 border-indigo-100 p-2 rounded-xl text-2xl font-black text-indigo-600 outline-none text-center" placeholder="R$ 0,00">
+            <div class="space-y-4 flex-grow">
+                <div class="bg-slate-50 p-2 rounded-2xl border border-slate-100">
+                    <label class="text-[8px] font-black text-slate-400 uppercase tracking-widest block mb-1 text-center">Faturamento Atual</label>
+                    <input type="text" id="med-atual" oninput="mascara(this, 'med', 'atual')" class="w-full bg-white border-2 border-indigo-100 p-2 rounded-xl text-3xl font-black text-indigo-600 outline-none text-center" placeholder="R$ 0,00">
                 </div>
 
                 <div class="grid grid-cols-3 gap-2">
                     <div class="bg-white p-2 rounded-xl border border-slate-200">
-                        <label class="text-[8px] font-bold text-slate-400 uppercase block text-center">Março 2025</label>
-                        <input type="text" id="med-ref2025" oninput="mascara(this, 'med', 'ref2025')" class="w-full text-center font-bold text-xs outline-none" placeholder="R$ 0,00">
+                        <label class="text-[7px] font-bold text-slate-400 uppercase block text-center">Março 2025</label>
+                        <input type="text" id="med-ref2025" oninput="mascara(this, 'med', 'ref2025')" class="w-full text-center font-bold text-[11px] outline-none" placeholder="R$ 0,00">
                     </div>
                     <div class="bg-white p-2 rounded-xl border border-slate-200">
-                        <label class="text-[8px] font-bold text-slate-400 uppercase block text-center">Pior 2026</label>
-                        <input type="text" id="med-pior2026" oninput="mascara(this, 'med', 'pior2026')" class="w-full text-center font-bold text-xs outline-none" placeholder="R$ 0,00">
+                        <label class="text-[7px] font-bold text-slate-400 uppercase block text-center">Pior 2026</label>
+                        <input type="text" id="med-pior2026" oninput="mascara(this, 'med', 'pior2026')" class="w-full text-center font-bold text-[11px] outline-none" placeholder="R$ 0,00">
                     </div>
                     <div class="bg-white p-2 rounded-xl border border-slate-200">
-                        <label class="text-[8px] font-bold text-slate-400 uppercase block text-center">Recorde</label>
-                        <input type="text" id="med-melhor2026" oninput="mascara(this, 'med', 'melhor2026')" class="w-full text-center font-bold text-xs outline-none" placeholder="R$ 0,00">
+                        <label class="text-[7px] font-bold text-slate-400 uppercase block text-center">Melhor 2026</label>
+                        <input type="text" id="med-melhor2026" oninput="mascara(this, 'med', 'melhor2026')" class="w-full text-center font-bold text-[11px] outline-none" placeholder="R$ 0,00">
                     </div>
                 </div>
 
@@ -80,7 +75,7 @@
     </div>
 
     <script>
-        const storeKey = 'dash_final_tv';
+        const storeKey = 'dash_v_final_no_logo';
         let dados = JSON.parse(localStorage.getItem(storeKey)) || {
             med: { atual: 0, ref2025: 0, pior2026: 0, melhor2026: 0 },
             ecos: { atual: 0, ref2025: 0, pior2026: 0, melhor2026: 0 }
@@ -100,7 +95,7 @@
             calcular(emp);
         }
 
-        function criarCard(titulo, base, atual, icone) {
+        function criarCard(titulo, base, atual) {
             if (!base || !atual) return '';
             const diff = atual - base;
             const perc = (atual / base) * 100;
@@ -108,18 +103,15 @@
             
             return `
                 <div class="flex items-center justify-between p-3 rounded-xl bg-white border border-slate-100 shadow-sm">
-                    <div class="flex items-center gap-2">
-                        <span class="text-sm">${icone}</span>
-                        <div>
-                            <p class="text-[8px] font-black text-slate-400 uppercase leading-none">${titulo}</p>
-                            <p class="text-[10px] font-bold text-slate-500">${formatar(base)}</p>
-                        </div>
+                    <div>
+                        <p class="text-[8px] font-black text-slate-400 uppercase leading-none mb-1">${titulo}</p>
+                        <p class="text-[10px] font-bold text-slate-500 italic">Base: ${formatar(base)}</p>
                     </div>
                     <div class="text-right">
-                        <p class="text-sm font-black ${isPos ? 'text-green-500' : 'text-rose-500'} leading-none">
+                        <p class="text-[15px] font-black ${isPos ? 'text-green-500' : 'text-rose-500'} leading-none">
                             ${isPos ? '▲' : '▼'} ${formatar(Math.abs(diff))}
                         </p>
-                        <p class="text-[9px] font-black text-slate-400 mt-1 uppercase">${perc.toFixed(1)}%</p>
+                        <p class="text-[9px] font-black text-slate-400 mt-1 uppercase">Atingido: ${perc.toFixed(1)}%</p>
                     </div>
                 </div>
             `;
@@ -128,9 +120,9 @@
         function calcular(emp) {
             const d = dados[emp];
             let html = "";
-            html += criarCard("Março/25", d.ref2025, d.atual, "📅");
-            html += criarCard("Vs. Pior 26", d.pior2026, d.atual, "📉");
-            html += criarCard("Vs. Recorde", d.melhor2026, d.atual, "🏆");
+            html += criarCard("VS. MARÇO 2025", d.ref2025, d.atual);
+            html += criarCard("VS. PIOR MÊS 2026", d.pior2026, d.atual);
+            html += criarCard("VS. MELHOR MÊS 2026", d.melhor2026, d.atual);
             document.getElementById(`res-${emp}`).innerHTML = html;
         }
 
