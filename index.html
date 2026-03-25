@@ -8,27 +8,30 @@
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #09090b; color: #f8fafc; }
+        body { font-family: 'Inter', sans-serif; background-color: #09090b; }
         .bg-card { background-color: #18181b; border: 1px solid #27272a; }
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        .input-currency-container { position: relative; display: flex; align-items: center; }
         .currency-symbol { position: absolute; left: 8px; font-weight: 800; font-size: 0.6rem; opacity: 0.3; pointer-events: none; }
     </style>
 </head>
-<body class="pb-20">
+<body class="text-slate-100 pb-20">
     <div id="root"></div>
 
     <script type="text/babel">
         const { useState, useMemo, useEffect } = React;
 
+        const TrophyIcon = () => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+        );
+
         const formatCurrency = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v || 0);
 
         function App() {
-            // Estado dos Vendedores
             const [sellers, setSellers] = useState(() => {
-                const saved = localStorage.getItem('soitic_v10_sellers');
+                const saved = localStorage.getItem('soitic_final_v1');
                 return saved ? JSON.parse(saved) : [
                     { id: 1, name: 'Guilherme', sales: 0, contracts: 0 },
                     { id: 2, name: 'Vanessa', sales: 0, contracts: 0 },
@@ -37,18 +40,17 @@
                 ];
             });
 
-            // Estado das Empresas (Histórico)
             const [companies, setCompanies] = useState(() => {
-                const saved = localStorage.getItem('soitic_v10_companies');
+                const saved = localStorage.getItem('soitic_comp_v1');
                 return saved ? JSON.parse(saved) : [
-                    { id: 'med', name: 'MEDSYSTEM', best26: 0, worst26: 0, same25: 0 },
-                    { id: 'ecos', name: 'ECOS', best26: 0, worst26: 0, same25: 0 }
+                    { id: 101, name: 'MEDSYSTEM', best26: 0, worst26: 0, same25: 0 },
+                    { id: 102, name: 'ECOS', best26: 0, worst26: 0, same25: 0 }
                 ];
             });
 
             useEffect(() => {
-                localStorage.setItem('soitic_v10_sellers', JSON.stringify(sellers));
-                localStorage.setItem('soitic_v10_companies', JSON.stringify(companies));
+                localStorage.setItem('soitic_final_v1', JSON.stringify(sellers));
+                localStorage.setItem('soitic_comp_v1', JSON.stringify(companies));
             }, [sellers, companies]);
 
             const updateSeller = (id, field, val) => {
@@ -59,93 +61,83 @@
                 setCompanies(prev => prev.map(c => c.id === id ? { ...c, [field]: parseFloat(val) || 0 } : c));
             };
 
-            const sortedSales = useMemo(() => [...sellers].sort((a,b) => b.sales - a.sales), [sellers]);
+            const sortedS = useMemo(() => [...sellers].sort((a,b) => b.sales - a.sales), [sellers]);
+            const sortedC = useMemo(() => [...sellers].sort((a,b) => b.contracts - a.contracts), [sellers]);
 
-            return (
-                <div className="max-w-4xl mx-auto px-6 py-10 space-y-12">
-                    <header className="text-center border-b border-zinc-800 pb-8">
-                        <h1 className="text-3xl font-black italic uppercase tracking-tighter">Grupo <span className="text-amber-500">Soitic</span></h1>
-                        <p className="text-[10px] font-bold text-zinc-500 tracking-[.4em] mt-2">DASHBOARD COMERCIAL</p>
-                    </header>
-
-                    {/* RANKING SIMPLIFICADO */}
-                    <div className="bg-card rounded-3xl p-8 border-amber-500/20 shadow-2xl">
-                        <h3 className="text-center text-[10px] font-black uppercase text-amber-500 mb-8 tracking-widest italic">Pódio de Vendas</h3>
-                        <div className="flex items-end justify-center gap-4 h-40">
-                            {/* 2º */}
-                            <div className="flex flex-col items-center w-full">
-                                <span className="text-[10px] font-bold text-zinc-400 mb-1">{sortedSales[1].name}</span>
-                                <div className="w-full bg-zinc-800 h-16 rounded-t-xl flex items-center justify-center text-[10px] font-mono border-t border-white/5">
-                                    {formatCurrency(sortedSales[1].sales)}
-                                </div>
-                            </div>
-                            {/* 1º */}
-                            <div className="flex flex-col items-center w-full">
-                                <span className="text-2xl mb-1">👑</span>
-                                <span className="text-[11px] font-black text-white mb-1 uppercase italic tracking-tighter">{sortedSales[0].name}</span>
-                                <div className="bg-gradient-to-t from-emerald-600 to-emerald-400 w-full h-28 rounded-t-xl flex flex-col items-center justify-center shadow-[0_0_30px_rgba(16,185,129,0.3)] border-t border-white/30">
-                                    <span className="text-3xl font-black italic">1º</span>
-                                    <span className="text-[9px] font-bold">{formatCurrency(sortedSales[0].sales)}</span>
-                                </div>
-                            </div>
-                            {/* 3º */}
-                            <div className="flex flex-col items-center w-full opacity-50">
-                                <span className="text-[10px] font-bold text-zinc-500 mb-1">{sortedSales[2].name}</span>
-                                <div className="w-full bg-zinc-900 h-10 rounded-t-xl flex items-center justify-center text-[8px] font-mono border-t border-white/5">
-                                    {formatCurrency(sortedSales[2].sales)}
-                                </div>
+            const PodiumCard = ({ title, data, field, accent, symbol }) => (
+                <div className="bg-card rounded-3xl p-6 border border-zinc-800 shadow-2xl flex flex-col">
+                    <h3 className="text-center text-[10px] font-black uppercase text-zinc-500 mb-8 tracking-[0.3em]">{title}</h3>
+                    <div className="flex items-end justify-center gap-2 h-40">
+                        <div className="flex flex-col items-center w-full">
+                            <span className="text-[9px] font-bold text-zinc-500 mb-1 truncate w-full text-center">{data[1].name}</span>
+                            <div className="w-full bg-zinc-800 h-16 rounded-t-xl flex items-center justify-center text-[9px] font-mono">{symbol}{data[1][field]}</div>
+                        </div>
+                        <div className="flex flex-col items-center w-full relative">
+                            <span className="text-[11px] font-black text-white mb-1 uppercase italic">{data[0].name}</span>
+                            <div className={`${accent} w-full h-32 rounded-t-xl flex flex-col items-center justify-center shadow-lg border-t border-white/20`}>
+                                <span className="text-3xl font-black italic">1º</span>
+                                <span className="text-[9px] font-bold">{symbol}{data[0][field]}</span>
                             </div>
                         </div>
+                        <div className="flex flex-col items-center w-full opacity-40">
+                            <span className="text-[9px] font-bold text-zinc-600 mb-1 truncate w-full text-center">{data[2].name}</span>
+                            <div className="w-full bg-zinc-900 h-10 rounded-t-xl flex items-center justify-center text-[8px] font-mono">{symbol}{data[2][field]}</div>
+                        </div>
+                    </div>
+                </div>
+            );
+
+            return (
+                <div className="max-w-5xl mx-auto px-6 py-12 space-y-12">
+                    <header className="flex justify-between items-center border-b border-zinc-800 pb-8">
+                        <div>
+                            <h1 className="text-3xl font-black italic uppercase tracking-tighter leading-none">Grupo <span className="text-amber-500">Soitic</span></h1>
+                            <p className="text-[10px] font-bold text-zinc-600 tracking-[0.4em] mt-1">PERFORMANCE HUB</p>
+                        </div>
+                        <TrophyIcon />
+                    </header>
+
+                    <div className="grid md:grid-cols-2 gap-8">
+                        <PodiumCard title="Ranking Vendas (R$)" data={sortedS} field="sales" accent="bg-emerald-600" symbol="R$" />
+                        <PodiumCard title="Ranking Contratos" data={sortedC} field="contracts" accent="bg-blue-600" symbol="CT " />
                     </div>
 
-                    {/* ENTRADA DE DADOS VENDEDORES */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {sellers.map(s => (
-                            <div key={s.id} className="bg-card p-4 rounded-xl flex items-center justify-between gap-4">
-                                <span className="font-black text-xs uppercase italic w-20">{s.name}</span>
-                                <div className="flex gap-2">
-                                    <div className="input-currency-container w-28">
+                            <div key={s.id} className="bg-card p-5 rounded-2xl flex items-center justify-between border border-zinc-800">
+                                <span className="font-black text-xs uppercase italic text-zinc-200">{s.name}</span>
+                                <div className="flex gap-3">
+                                    <div className="relative flex items-center">
                                         <span className="currency-symbol text-emerald-500">R$</span>
-                                        <input type="number" value={s.sales} onChange={e => updateSeller(s.id, 'sales', e.target.value)} className="bg-zinc-900 border border-zinc-800 rounded p-1.5 pl-6 text-[10px] font-mono text-emerald-400 w-full text-right" />
+                                        <input type="number" value={s.sales} onChange={e => updateSeller(s.id, 'sales', e.target.value)} className="bg-zinc-900 border border-zinc-800 rounded-lg p-2 pl-7 text-[11px] font-mono text-emerald-400 w-32 text-right focus:border-emerald-500 outline-none" />
                                     </div>
-                                    <div className="input-currency-container w-20">
-                                        <span className="currency-symbol text-blue-500">CT</span>
-                                        <input type="number" value={s.contracts} onChange={e => updateSeller(s.id, 'contracts', e.target.value)} className="bg-zinc-900 border border-zinc-800 rounded p-1.5 pl-6 text-[10px] font-mono text-blue-400 w-full text-right" />
+                                    <div className="relative flex items-center">
+                                        <span className="currency-symbol text-blue-500 text-[10px]">CT</span>
+                                        <input type="number" value={s.contracts} onChange={e => updateSeller(s.id, 'contracts', e.target.value)} className="bg-zinc-900 border border-zinc-800 rounded-lg p-2 pl-7 text-[11px] font-mono text-blue-400 w-20 text-right focus:border-blue-500 outline-none" />
                                     </div>
                                 </div>
                             </div>
                         ))}
                     </div>
 
-                    {/* HISTÓRICO POR EMPRESA (MEDSYSTEM E ECOS) */}
-                    <div className="space-y-6 pt-10">
-                        <h2 className="text-center text-[10px] font-black uppercase text-zinc-500 tracking-[0.5em]">Histórico por Empresa</h2>
-                        <div className="grid md:grid-cols-2 gap-6">
+                    <div className="pt-12 border-t border-zinc-800 space-y-8">
+                        <h2 className="text-center text-[10px] font-black uppercase text-zinc-500 tracking-[0.5em]">Histórico Operacional (Empresas)</h2>
+                        <div className="grid md:grid-cols-2 gap-8">
                             {companies.map(c => (
-                                <div key={c.id} className="bg-card p-6 rounded-2xl border-l-4 border-l-amber-500">
-                                    <h4 className="font-black text-sm mb-6 text-white tracking-widest">{c.name}</h4>
-                                    
-                                    <div className="space-y-4">
-                                        <div>
-                                            <label className="text-[8px] font-bold text-zinc-500 uppercase block mb-1">Melhor Mês de 2026</label>
-                                            <div className="input-currency-container">
-                                                <span className="currency-symbol text-emerald-500">R$</span>
-                                                <input type="number" value={c.best26} onChange={e => updateCompany(c.id, 'best26', e.target.value)} className="bg-zinc-900/50 border border-zinc-800 rounded-lg p-2 pl-7 text-xs font-mono text-emerald-500 w-full text-right" />
-                                            </div>
+                                <div key={c.id} className="bg-card p-6 rounded-3xl border-l-4 border-amber-500 shadow-xl">
+                                    <h4 className="font-black text-sm mb-6 text-zinc-300 italic uppercase">{c.name}</h4>
+                                    <div className="grid grid-cols-3 gap-4">
+                                        <div className="space-y-1">
+                                            <label className="text-[8px] font-black text-zinc-600 uppercase">Melhor 2026</label>
+                                            <input type="number" value={c.best26} onChange={e => updateCompany(c.id, 'best26', e.target.value)} className="bg-zinc-900 border border-zinc-800 rounded-lg p-2 text-[10px] font-mono text-emerald-500 w-full text-center" />
                                         </div>
-                                        <div>
-                                            <label className="text-[8px] font-bold text-zinc-500 uppercase block mb-1 text-red-400">Pior Mês de 2026</label>
-                                            <div className="input-currency-container">
-                                                <span className="currency-symbol text-red-500">R$</span>
-                                                <input type="number" value={c.worst26} onChange={e => updateCompany(c.id, 'worst26', e.target.value)} className="bg-zinc-900/50 border border-zinc-800 rounded-lg p-2 pl-7 text-xs font-mono text-red-500 w-full text-right" />
-                                            </div>
+                                        <div className="space-y-1">
+                                            <label className="text-[8px] font-black text-zinc-600 uppercase">Pior 2026</label>
+                                            <input type="number" value={c.worst26} onChange={e => updateCompany(c.id, 'worst26', e.target.value)} className="bg-zinc-900 border border-zinc-800 rounded-lg p-2 text-[10px] font-mono text-red-500 w-full text-center" />
                                         </div>
-                                        <div className="pt-4 border-t border-zinc-800">
-                                            <label className="text-[8px] font-bold text-zinc-400 uppercase block mb-1">Mesmo Mês de 2025</label>
-                                            <div className="input-currency-container">
-                                                <span className="currency-symbol">R$</span>
-                                                <input type="number" value={c.same25} onChange={e => updateCompany(c.id, 'same25', e.target.value)} className="bg-transparent border border-zinc-800 rounded-lg p-2 pl-7 text-xs font-mono text-zinc-400 w-full text-right" />
-                                            </div>
+                                        <div className="space-y-1">
+                                            <label className="text-[8px] font-black text-zinc-600 uppercase">Mesmo Mês 25</label>
+                                            <input type="number" value={c.same25} onChange={e => updateCompany(c.id, 'same25', e.target.value)} className="bg-zinc-900 border border-zinc-800 rounded-lg p-2 text-[10px] font-mono text-zinc-400 w-full text-center" />
                                         </div>
                                     </div>
                                 </div>
