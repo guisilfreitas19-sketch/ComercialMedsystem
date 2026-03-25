@@ -16,8 +16,8 @@
         .bg-card { background-color: #18181b; border: 1px solid #27272a; }
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         .bar-transition { transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
-        .input-currency-container { position: relative; display: flex; items-center: center; }
-        .currency-symbol { position: absolute; left: 12px; color: #10b981; font-weight: 800; font-size: 0.75rem; opacity: 0.6; }
+        .input-currency-container { position: relative; display: flex; align-items: center; }
+        .currency-symbol { position: absolute; left: 12px; font-weight: 800; font-size: 0.7rem; opacity: 0.5; pointer-events: none; }
     </style>
 </head>
 <body class="bg-background text-slate-100 pb-20">
@@ -91,8 +91,8 @@
                         <div className="flex flex-col items-center w-full">
                             <span className="text-[10px] font-bold text-slate-500 mb-1 truncate w-full text-center">{data[1].name}</span>
                             <div className="w-full bg-[#27272a] h-16 rounded-t-xl flex items-center justify-center border-t border-white/5">
-                                <span className="text-[9px] font-mono font-bold text-slate-300 px-1">
-                                    {field === 'sales' ? formatCurrency(data[1][field]) : data[1][field]}
+                                <span className="text-[9px] font-mono font-bold text-slate-300 px-1 text-center">
+                                    {formatCurrency(data[1][field])}
                                 </span>
                             </div>
                         </div>
@@ -100,16 +100,16 @@
                             <span className="text-[11px] font-black text-white mb-1 truncate w-full text-center uppercase tracking-tighter italic">{data[0].name}</span>
                             <div className={`w-full ${accentColor} h-28 rounded-t-xl flex flex-col items-center justify-center shadow-2xl border-t border-white/30`}>
                                 <span className="text-3xl font-black italic text-white">1º</span>
-                                <span className="text-[9px] font-bold text-white px-1">
-                                    {field === 'sales' ? formatCurrency(data[0][field]) : data[0][field]}
+                                <span className="text-[9px] font-bold text-white px-1 text-center">
+                                    {formatCurrency(data[0][field])}
                                 </span>
                             </div>
                         </div>
                         <div className="flex flex-col items-center w-full">
                             <span className="text-[10px] font-bold text-slate-600 mb-1 truncate w-full text-center">{data[2].name}</span>
                             <div className="w-full bg-[#27272a]/40 h-10 rounded-t-xl flex items-center justify-center border-t border-white/5">
-                                <span className="text-[8px] font-bold opacity-30 px-1">
-                                    {field === 'sales' ? formatCurrency(data[2][field]) : data[2][field]}
+                                <span className="text-[8px] font-bold opacity-30 px-1 text-center">
+                                    {formatCurrency(data[2][field])}
                                 </span>
                             </div>
                         </div>
@@ -159,10 +159,11 @@
                                                 </div>
                                                 
                                                 <div className="grid grid-cols-2 gap-4 w-full">
+                                                    {/* Campo Vendas */}
                                                     <div className="space-y-1.5">
                                                         <label className="text-[9px] font-black text-emerald-500/60 uppercase ml-2 italic">Vendas</label>
                                                         <div className="input-currency-container">
-                                                            <span className="currency-symbol">R$</span>
+                                                            <span className="currency-symbol text-emerald-500">R$</span>
                                                             <input 
                                                                 type="number" 
                                                                 value={s.sales}
@@ -172,15 +173,19 @@
                                                             />
                                                         </div>
                                                     </div>
+                                                    {/* Campo Contratos */}
                                                     <div className="space-y-1.5">
                                                         <label className="text-[9px] font-black text-blue-500/60 uppercase ml-2 italic">Contratos</label>
-                                                        <input 
-                                                            type="number" 
-                                                            value={s.contracts}
-                                                            placeholder="0"
-                                                            onChange={(e) => handleUpdate(s.id, 'contracts', e.target.value)}
-                                                            className="bg-[#18181b] border border-[#27272a] rounded-xl p-3 text-sm font-mono text-blue-400 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20 w-full transition-all text-right"
-                                                        />
+                                                        <div className="input-currency-container">
+                                                            <span className="currency-symbol text-blue-500">R$</span>
+                                                            <input 
+                                                                type="number" 
+                                                                value={s.contracts}
+                                                                placeholder="0,00"
+                                                                onChange={(e) => handleUpdate(s.id, 'contracts', e.target.value)}
+                                                                className="bg-[#18181b] border border-[#27272a] rounded-xl p-3 pl-9 text-sm font-mono text-blue-400 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20 w-full transition-all text-right"
+                                                            />
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -188,7 +193,7 @@
                                             <div className="mt-6 space-y-2">
                                                 <div className="flex justify-between items-end px-1">
                                                     <div className="flex flex-col">
-                                                        <span className="text-[9px] font-black uppercase text-slate-500 italic leading-none mb-1 text-xs">Status do Objetivo</span>
+                                                        <span className="text-[9px] font-black uppercase text-slate-500 italic leading-none mb-1">Status do Objetivo</span>
                                                         <span className={`text-[10px] font-bold ${remaining <= 0 ? 'text-amber-400' : 'text-slate-400'}`}>
                                                             {remaining <= 0 ? 'Meta atingida! Parabéns! 🎉' : `Faltam ${formatCurrency(remaining)} para a meta`}
                                                         </span>
