@@ -12,8 +12,9 @@
         .bg-card { background-color: #18181b; border: 1px solid #27272a; }
         .bar-transition { transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
         .input-field { background: #000; border: 1px solid #333; color: #fff; border-radius: 12px; padding: 12px; text-align: right; width: 100%; font-family: monospace; }
-        .input-field:focus { border-color: #10b981; outline: none; ring: 2px; ring-color: #10b981/20; }
+        .input-field:focus { border-color: #10b981; outline: none; }
         .currency-label { font-size: 0.7rem; font-weight: 800; margin-bottom: 6px; display: block; letter-spacing: 0.05em; }
+        .medsystem-card { border-left: 4px solid #f59e0b; }
     </style>
 </head>
 <body class="pb-20">
@@ -37,52 +38,131 @@
             </div>
             <div id="sellers-list" class="p-4 md:p-8 space-y-6"></div>
         </div>
+
+        <div class="bg-card medsystem-card rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/5">
+            <div class="p-6 border-b border-white/5 bg-amber-500/5">
+                <h2 class="text-xs font-black uppercase tracking-widest text-amber-500 italic">MEDSYSTEM - Comparativos Manuais</h2>
+            </div>
+            <div class="p-8 grid md:grid-cols-2 gap-12">
+                <div class="space-y-6">
+                    <div>
+                        <label class="currency-label text-slate-400 uppercase italic">🏆 Melhor Mês de 2026</label>
+                        <input type="text" id="ms-best" oninput="maskMedsystem(this, 'best')" class="input-field" placeholder="R$ 0,00">
+                    </div>
+                    <div>
+                        <label class="currency-label text-slate-400 uppercase italic">📉 Pior Mês de 2026</label>
+                        <input type="text" id="ms-worst" oninput="maskMedsystem(this, 'worst')" class="input-field" placeholder="R$ 0,00">
+                    </div>
+                    <div>
+                        <label class="currency-label text-slate-400 uppercase italic">📅 Mesmo Mês de 2025</label>
+                        <input type="text" id="ms-prev" oninput="maskMedsystem(this, 'prev')" class="input-field" placeholder="R$ 0,00">
+                    </div>
+                </div>
+
+                <div class="bg-black/40 rounded-3xl p-6 border border-white/5 space-y-6">
+                    <h3 class="text-xs font-black uppercase text-amber-500 italic border-b border-white/10 pb-2">📈 COMPARATIVO GERAL (Guilherme + Luiz)</h3>
+                    
+                    <div id="metric-prev" class="space-y-1"></div>
+                    <div id="metric-worst" class="space-y-1"></div>
+                    <div id="metric-best" class="space-y-1"></div>
+                </div>
+            </div>
+        </div>
     </main>
 
     <script>
-        let sellers = JSON.parse(localStorage.getItem('soitic_v5')) || [
+        let sellers = JSON.parse(localStorage.getItem('soitic_v6')) || [
             { id: 1, name: 'Guilherme', sales: 0, contracts: 0, target: 6000 },
             { id: 2, name: 'Vanessa', sales: 0, contracts: 0, target: 6000 },
             { id: 3, name: 'Luiz', sales: 0, contracts: 0, target: 3000 },
             { id: 4, name: 'João', sales: 0, contracts: 0, target: 3000 }
         ];
 
+        let medsystem = JSON.parse(localStorage.getItem('soitic_ms')) || { best: 0, worst: 0, prev: 0 };
+
         function formatCurrency(val) {
             return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val || 0);
         }
 
-        // Função de Máscara em tempo real
         function maskCurrency(input, id, field) {
             let value = input.value.replace(/\D/g, "");
-            value = (value / 100).toFixed(2) + "";
-            value = value.replace(".", ",");
-            value = value.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
-            
-            input.value = "R$ " + value;
+            value = (value / 100).toFixed(2);
+            input.value = formatCurrency(value);
+            updateData(id, field, parseFloat(value));
+        }
 
-            // Salva o valor numérico real no objeto
-            const numericValue = parseFloat(value.replace(/\./g, "").replace(",", "."));
-            updateData(id, field, numericValue);
+        function maskMedsystem(input, field) {
+            let value = input.value.replace(/\D/g, "");
+            value = (value / 100).toFixed(2);
+            input.value = formatCurrency(value);
+            medsystem[field] = parseFloat(value);
+            localStorage.setItem('soitic_ms', JSON.stringify(medsystem));
+            renderMedsystemMetrics();
         }
 
         function updateData(id, field, numValue) {
             const seller = sellers.find(s => s.id === id);
-            
             if (field === 'sales' && numValue >= seller.target && seller.sales < seller.target) {
-                confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#fbbf24', '#10b981'] });
+                confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
             }
-
             seller[field] = numValue;
-            localStorage.setItem('soitic_v5', JSON.stringify(sellers));
-            renderOnlyDynamicParts(); // Atualiza pódios e barras sem perder o foco do input
+            localStorage.setItem('soitic_v6', JSON.stringify(sellers));
+            renderOnlyDynamicParts();
+            renderMedsystemMetrics();
+        }
+
+        function renderMedsystemMetrics() {
+            const guilherme = sellers.find(s => s.name === 'Guilherme')?.sales || 0;
+            const luiz = sellers.find(s => s.name === 'Luiz')?.sales || 0;
+            const totalSoma = guilherme + luiz;
+
+            const calcDiff = (target, current) => {
+                const diff = current - target;
+                if (diff >= 0) return `<span class="text-emerald-500 font-bold">➡️ +${formatCurrency(diff)} acima ✅</span>`;
+                return `<span class="text-red-500 font-bold">➡️ Faltam: ${formatCurrency(Math.abs(diff))}</span>`;
+            };
+
+            document.getElementById('metric-prev').innerHTML = `
+                <p class="text-[10px] text-slate-400 uppercase font-bold">📅 Comparativo Mês 2025:</p>
+                ${calcDiff(medsystem.prev, totalSoma)}
+            `;
+            document.getElementById('metric-worst').innerHTML = `
+                <p class="text-[10px] text-slate-400 uppercase font-bold">📉 Pior mês 2026:</p>
+                ${calcDiff(medsystem.worst, totalSoma)}
+            `;
+            document.getElementById('metric-best').innerHTML = `
+                <p class="text-[10px] text-slate-400 uppercase font-bold">🏆 Melhor mês 2026 (${formatCurrency(medsystem.best)}):</p>
+                ${calcDiff(medsystem.best, totalSoma)}
+            `;
         }
 
         function resetData() {
             if(confirm("Deseja limpar todos os registros?")) {
                 sellers.forEach(s => { s.sales = 0; s.contracts = 0; });
-                localStorage.setItem('soitic_v5', JSON.stringify(sellers));
-                renderAll();
+                localStorage.setItem('soitic_v6', JSON.stringify(sellers));
+                location.reload();
             }
+        }
+
+        function renderOnlyDynamicParts() {
+            const podiums = document.getElementById('podiums-container');
+            const sortedSales = [...sellers].sort((a, b) => b.sales - a.sales);
+            const sortedContracts = [...sellers].sort((a, b) => b.contracts - a.contracts);
+
+            podiums.innerHTML = `
+                ${renderPodium("Total em Vendas", sortedSales, 'sales', 'bg-emerald-600')}
+                ${renderPodium("Contratos Aceitos", sortedContracts, 'contracts', 'bg-blue-600')}
+            `;
+
+            sellers.forEach(s => {
+                const progress = Math.min((s.sales / s.target) * 100, 100);
+                const bar = document.getElementById(`bar-${s.id}`);
+                const perc = document.getElementById(`perc-${s.id}`);
+                const rem = document.getElementById(`rem-${s.id}`);
+                if(bar) bar.style.width = progress + "%";
+                if(perc) perc.innerText = Math.round(progress) + "%";
+                if(rem) rem.innerText = (s.target - s.sales) <= 0 ? "🏆 META ATINGIDA" : "FALTA " + formatCurrency(s.target - s.sales);
+            });
         }
 
         function renderPodium(title, data, field, color) {
@@ -96,8 +176,8 @@
                         </div>
                         <div class="text-center w-full">
                             <span class="text-[11px] font-black uppercase italic mb-2 block text-white">${data[0]?.name || '-'}</span>
-                            <div class="${color} h-24 rounded-t-2xl shadow-[0_0_20px_rgba(0,0,0,0.4)] border-t border-white/30 flex flex-col items-center justify-center">
-                                <span class="text-3xl font-black italic text-white drop-shadow-md">1º</span>
+                            <div class="${color} h-24 rounded-t-2xl shadow-lg border-t border-white/30 flex flex-col items-center justify-center">
+                                <span class="text-3xl font-black italic text-white">1º</span>
                                 <span class="text-[9px] font-bold text-white/90">${formatCurrency(data[0]?.[field])}</span>
                             </div>
                         </div>
@@ -106,38 +186,7 @@
                             <div class="bg-white/5 h-8 rounded-t-xl border-t border-white/5 flex items-center justify-center text-[8px] font-mono opacity-20">${formatCurrency(data[2]?.[field])}</div>
                         </div>
                     </div>
-                </div>
-            `;
-        }
-
-        function renderOnlyDynamicParts() {
-            const podiums = document.getElementById('podiums-container');
-            const sortedSales = [...sellers].sort((a, b) => b.sales - a.sales);
-            const sortedContracts = [...sellers].sort((a, b) => b.contracts - a.contracts);
-
-            podiums.innerHTML = `
-                ${renderPodium("Total em Vendas", sortedSales, 'sales', 'bg-emerald-600')}
-                ${renderPodium("Contratos Aceitos", sortedContracts, 'contracts', 'bg-blue-600')}
-            `;
-
-            // Atualiza apenas as barras de progresso e textos de status
-            sellers.forEach(s => {
-                const progress = Math.min((s.sales / s.target) * 100, 100);
-                const bar = document.getElementById(`bar-${s.id}`);
-                const perc = document.getElementById(`perc-${s.id}`);
-                const rem = document.getElementById(`rem-${s.id}`);
-                
-                if(bar) bar.style.width = progress + "%";
-                if(perc) perc.innerText = Math.round(progress) + "%";
-                if(rem) rem.innerText = (s.target - s.sales) <= 0 ? "🏆 META ATINGIDA" : "FALTA " + formatCurrency(s.target - s.sales);
-                
-                if(progress >= 100) {
-                    bar.classList.replace('bg-emerald-500', 'bg-amber-500');
-                    perc.classList.replace('text-emerald-500', 'text-amber-500');
-                } else {
-                    bar.classList.add('bg-emerald-500');
-                }
-            });
+                </div>`;
         }
 
         function renderAll() {
@@ -145,39 +194,4 @@
             list.innerHTML = sellers.map(s => {
                 const progress = Math.min((s.sales / s.target) * 100, 100);
                 return `
-                    <div class="p-6 rounded-3xl bg-white/[0.02] border border-white/5 transition-all hover:border-white/10">
-                        <div class="flex flex-col md:flex-row items-center gap-8">
-                            <div class="w-full md:w-48 text-center md:text-left">
-                                <p class="font-black text-xl uppercase italic leading-none text-white">${s.name}</p>
-                                <p class="text-[10px] text-slate-500 font-bold uppercase mt-1">META: ${formatCurrency(s.target)}</p>
-                            </div>
-                            <div class="grid grid-cols-2 gap-4 w-full">
-                                <div>
-                                    <label class="currency-label text-emerald-500 uppercase italic">Vendas</label>
-                                    <input type="text" value="${formatCurrency(s.sales)}" oninput="maskCurrency(this, ${s.id}, 'sales')" class="input-field">
-                                </div>
-                                <div>
-                                    <label class="currency-label text-blue-500 uppercase italic">Contratos</label>
-                                    <input type="text" value="${formatCurrency(s.contracts)}" oninput="maskCurrency(this, ${s.id}, 'contracts')" class="input-field">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mt-8 space-y-3">
-                            <div class="flex justify-between items-end text-[10px] font-black italic tracking-wider">
-                                <span id="rem-${s.id}" class="text-slate-500 uppercase">${(s.target - s.sales) <= 0 ? '🏆 META ATINGIDA' : 'FALTA ' + formatCurrency(s.target - s.sales)}</span>
-                                <span id="perc-${s.id}" class="${progress >= 100 ? 'text-amber-500' : 'text-emerald-500'} text-sm">${Math.round(progress)}%</span>
-                            </div>
-                            <div class="h-3 w-full bg-black/60 rounded-full p-[2px] border border-white/5">
-                                <div id="bar-${s.id}" class="h-full bar-transition rounded-full ${progress >= 100 ? 'bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.4)]' : 'bg-emerald-500'}" style="width: ${progress}%"></div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-            renderOnlyDynamicParts();
-        }
-
-        renderAll();
-    </script>
-</body>
-</html>
+                    <div class="p-6 rounded-3xl bg-white/[0.02] border border-white/5
