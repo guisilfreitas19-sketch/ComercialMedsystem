@@ -8,152 +8,149 @@
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #09090b; }
+        body { font-family: 'Inter', sans-serif; background-color: #09090b; color: #f8fafc; }
         .bg-card { background-color: #18181b; border: 1px solid #27272a; }
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        .bar-transition { transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
         .input-currency-container { position: relative; display: flex; align-items: center; }
         .currency-symbol { position: absolute; left: 8px; font-weight: 800; font-size: 0.6rem; opacity: 0.3; pointer-events: none; }
     </style>
 </head>
-<body class="text-slate-100 pb-20">
+<body class="pb-20">
     <div id="root"></div>
 
     <script type="text/babel">
         const { useState, useMemo, useEffect } = React;
 
-        const TrophyIcon = () => (
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
-        );
-
         const formatCurrency = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v || 0);
-        const getAvatar = (n) => `https://ui-avatars.com/api/?name=${n.substring(0,1)}&background=333&color=fff&rounded=true&bold=true`;
 
         function App() {
+            // Estado dos Vendedores
             const [sellers, setSellers] = useState(() => {
-                try {
-                    const saved = localStorage.getItem('soitic_v9_data');
-                    if (saved) return JSON.parse(saved);
-                } catch(e) {}
-                return [
-                    { id: 1, name: 'Guilherme', sales: 0, contracts: 0, target: 6000, best2026: 0, worst2026: 0, lastYear: 0 },
-                    { id: 2, name: 'Vanessa', sales: 0, contracts: 0, target: 6000, best2026: 0, worst2026: 0, lastYear: 0 },
-                    { id: 3, name: 'Luiz', sales: 0, contracts: 0, target: 3000, best2026: 0, worst2026: 0, lastYear: 0 },
-                    { id: 4, name: 'João', sales: 0, contracts: 0, target: 3000, best2026: 0, worst2026: 0, lastYear: 0 }
+                const saved = localStorage.getItem('soitic_v10_sellers');
+                return saved ? JSON.parse(saved) : [
+                    { id: 1, name: 'Guilherme', sales: 0, contracts: 0 },
+                    { id: 2, name: 'Vanessa', sales: 0, contracts: 0 },
+                    { id: 3, name: 'Luiz', sales: 0, contracts: 0 },
+                    { id: 4, name: 'João', sales: 0, contracts: 0 }
+                ];
+            });
+
+            // Estado das Empresas (Histórico)
+            const [companies, setCompanies] = useState(() => {
+                const saved = localStorage.getItem('soitic_v10_companies');
+                return saved ? JSON.parse(saved) : [
+                    { id: 'med', name: 'MEDSYSTEM', best26: 0, worst26: 0, same25: 0 },
+                    { id: 'ecos', name: 'ECOS', best26: 0, worst26: 0, same25: 0 }
                 ];
             });
 
             useEffect(() => {
-                localStorage.setItem('soitic_v9_data', JSON.stringify(sellers));
-            }, [sellers]);
+                localStorage.setItem('soitic_v10_sellers', JSON.stringify(sellers));
+                localStorage.setItem('soitic_v10_companies', JSON.stringify(companies));
+            }, [sellers, companies]);
 
-            const update = (id, field, val) => {
+            const updateSeller = (id, field, val) => {
                 setSellers(prev => prev.map(s => s.id === id ? { ...s, [field]: parseFloat(val) || 0 } : s));
             };
 
-            const sortedS = useMemo(() => [...sellers].sort((a,b) => b.sales - a.sales), [sellers]);
-            const sortedC = useMemo(() => [...sellers].sort((a,b) => b.contracts - a.contracts), [sellers]);
+            const updateCompany = (id, field, val) => {
+                setCompanies(prev => prev.map(c => c.id === id ? { ...c, [field]: parseFloat(val) || 0 } : c));
+            };
+
+            const sortedSales = useMemo(() => [...sellers].sort((a,b) => b.sales - a.sales), [sellers]);
 
             return (
-                <div className="max-w-5xl mx-auto px-6 py-10 space-y-12">
-                    <header className="flex justify-between items-center border-b border-zinc-800 pb-6">
-                        <h1 className="text-2xl font-black italic uppercase tracking-tighter">Grupo <span className="text-amber-500">Soitic</span></h1>
-                        <span className="text-[10px] font-bold text-zinc-500 tracking-[.3em]">RANKING 2026</span>
+                <div className="max-w-4xl mx-auto px-6 py-10 space-y-12">
+                    <header className="text-center border-b border-zinc-800 pb-8">
+                        <h1 className="text-3xl font-black italic uppercase tracking-tighter">Grupo <span className="text-amber-500">Soitic</span></h1>
+                        <p className="text-[10px] font-bold text-zinc-500 tracking-[.4em] mt-2">DASHBOARD COMERCIAL</p>
                     </header>
 
-                    {/* Pódios Simples */}
-                    <div className="grid md:grid-cols-2 gap-8">
-                        {[ {t: 'Total Vendas', d: sortedS, f: 'sales', c: 'bg-emerald-600'}, 
-                           {t: 'Volume Contratos', d: sortedC, f: 'contracts', c: 'bg-blue-600'} ].map((p, idx) => (
-                            <div key={idx} className="bg-card rounded-2xl p-6 border border-zinc-800 shadow-xl">
-                                <h3 className="text-[10px] font-bold uppercase text-zinc-400 mb-6 flex items-center gap-2">
-                                    <TrophyIcon /> {p.t}
-                                </h3>
-                                <div className="flex items-end justify-center gap-2 h-32">
-                                    {/* 2º */}
-                                    <div className="flex flex-col items-center w-full">
-                                        <span className="text-[9px] font-bold text-zinc-500 mb-1">{p.d[1].name}</span>
-                                        <div className="w-full bg-zinc-800/50 h-12 rounded-t-lg flex items-center justify-center text-[8px] font-mono">
-                                            {formatCurrency(p.d[1][p.f])}
-                                        </div>
+                    {/* RANKING SIMPLIFICADO */}
+                    <div className="bg-card rounded-3xl p-8 border-amber-500/20 shadow-2xl">
+                        <h3 className="text-center text-[10px] font-black uppercase text-amber-500 mb-8 tracking-widest italic">Pódio de Vendas</h3>
+                        <div className="flex items-end justify-center gap-4 h-40">
+                            {/* 2º */}
+                            <div className="flex flex-col items-center w-full">
+                                <span className="text-[10px] font-bold text-zinc-400 mb-1">{sortedSales[1].name}</span>
+                                <div className="w-full bg-zinc-800 h-16 rounded-t-xl flex items-center justify-center text-[10px] font-mono border-t border-white/5">
+                                    {formatCurrency(sortedSales[1].sales)}
+                                </div>
+                            </div>
+                            {/* 1º */}
+                            <div className="flex flex-col items-center w-full">
+                                <span className="text-2xl mb-1">👑</span>
+                                <span className="text-[11px] font-black text-white mb-1 uppercase italic tracking-tighter">{sortedSales[0].name}</span>
+                                <div className="bg-gradient-to-t from-emerald-600 to-emerald-400 w-full h-28 rounded-t-xl flex flex-col items-center justify-center shadow-[0_0_30px_rgba(16,185,129,0.3)] border-t border-white/30">
+                                    <span className="text-3xl font-black italic">1º</span>
+                                    <span className="text-[9px] font-bold">{formatCurrency(sortedSales[0].sales)}</span>
+                                </div>
+                            </div>
+                            {/* 3º */}
+                            <div className="flex flex-col items-center w-full opacity-50">
+                                <span className="text-[10px] font-bold text-zinc-500 mb-1">{sortedSales[2].name}</span>
+                                <div className="w-full bg-zinc-900 h-10 rounded-t-xl flex items-center justify-center text-[8px] font-mono border-t border-white/5">
+                                    {formatCurrency(sortedSales[2].sales)}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* ENTRADA DE DADOS VENDEDORES */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {sellers.map(s => (
+                            <div key={s.id} className="bg-card p-4 rounded-xl flex items-center justify-between gap-4">
+                                <span className="font-black text-xs uppercase italic w-20">{s.name}</span>
+                                <div className="flex gap-2">
+                                    <div className="input-currency-container w-28">
+                                        <span className="currency-symbol text-emerald-500">R$</span>
+                                        <input type="number" value={s.sales} onChange={e => updateSeller(s.id, 'sales', e.target.value)} className="bg-zinc-900 border border-zinc-800 rounded p-1.5 pl-6 text-[10px] font-mono text-emerald-400 w-full text-right" />
                                     </div>
-                                    {/* 1º */}
-                                    <div className="flex flex-col items-center w-full">
-                                        <span className="text-[10px] font-black text-white mb-1 uppercase tracking-tighter">{p.d[0].name}</span>
-                                        <div className={`${p.c} w-full h-24 rounded-t-lg flex flex-col items-center justify-center border-t border-white/20 shadow-lg`}>
-                                            <span className="text-2xl font-black italic">1º</span>
-                                            <span className="text-[8px] font-bold">{formatCurrency(p.d[0][p.f])}</span>
-                                        </div>
-                                    </div>
-                                    {/* 3º */}
-                                    <div className="flex flex-col items-center w-full opacity-50">
-                                        <span className="text-[9px] font-bold text-zinc-600 mb-1">{p.d[2].name}</span>
-                                        <div className="w-full bg-zinc-900 h-8 rounded-t-lg flex items-center justify-center text-[7px] font-mono">
-                                            {formatCurrency(p.d[2][p.f])}
-                                        </div>
+                                    <div className="input-currency-container w-20">
+                                        <span className="currency-symbol text-blue-500">CT</span>
+                                        <input type="number" value={s.contracts} onChange={e => updateSeller(s.id, 'contracts', e.target.value)} className="bg-zinc-900 border border-zinc-800 rounded p-1.5 pl-6 text-[10px] font-mono text-blue-400 w-full text-right" />
                                     </div>
                                 </div>
                             </div>
                         ))}
                     </div>
 
-                    {/* Gestão Individual */}
-                    <div className="space-y-6">
-                        {sellers.map(s => (
-                            <div key={s.id} className="bg-card p-6 rounded-2xl border border-zinc-800 shadow-md">
-                                <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-6">
-                                    <div className="flex items-center gap-4 w-full md:w-48">
-                                        <img src={getAvatar(s.name)} className="w-12 h-12 border border-zinc-700" />
-                                        <h4 className="font-black text-lg uppercase italic">{s.name}</h4>
-                                    </div>
+                    {/* HISTÓRICO POR EMPRESA (MEDSYSTEM E ECOS) */}
+                    <div className="space-y-6 pt-10">
+                        <h2 className="text-center text-[10px] font-black uppercase text-zinc-500 tracking-[0.5em]">Histórico por Empresa</h2>
+                        <div className="grid md:grid-cols-2 gap-6">
+                            {companies.map(c => (
+                                <div key={c.id} className="bg-card p-6 rounded-2xl border-l-4 border-l-amber-500">
+                                    <h4 className="font-black text-sm mb-6 text-white tracking-widest">{c.name}</h4>
                                     
-                                    <div className="grid grid-cols-2 gap-4 w-full max-w-sm">
-                                        <div className="space-y-1">
-                                            <label className="text-[8px] font-black text-emerald-500 uppercase italic">Vendas Atuais</label>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="text-[8px] font-bold text-zinc-500 uppercase block mb-1">Melhor Mês de 2026</label>
                                             <div className="input-currency-container">
                                                 <span className="currency-symbol text-emerald-500">R$</span>
-                                                <input type="number" value={s.sales} onChange={e => update(s.id, 'sales', e.target.value)} className="bg-zinc-900 border border-zinc-800 rounded-lg p-2 pl-7 text-xs font-mono text-emerald-400 w-full text-right" />
+                                                <input type="number" value={c.best26} onChange={e => updateCompany(c.id, 'best26', e.target.value)} className="bg-zinc-900/50 border border-zinc-800 rounded-lg p-2 pl-7 text-xs font-mono text-emerald-500 w-full text-right" />
                                             </div>
                                         </div>
-                                        <div className="space-y-1">
-                                            <label className="text-[8px] font-black text-blue-500 uppercase italic">Contratos</label>
+                                        <div>
+                                            <label className="text-[8px] font-bold text-zinc-500 uppercase block mb-1 text-red-400">Pior Mês de 2026</label>
                                             <div className="input-currency-container">
-                                                <span className="currency-symbol text-blue-500">R$</span>
-                                                <input type="number" value={s.contracts} onChange={e => update(s.id, 'contracts', e.target.value)} className="bg-zinc-900 border border-zinc-800 rounded-lg p-2 pl-7 text-xs font-mono text-blue-400 w-full text-right" />
+                                                <span className="currency-symbol text-red-500">R$</span>
+                                                <input type="number" value={c.worst26} onChange={e => updateCompany(c.id, 'worst26', e.target.value)} className="bg-zinc-900/50 border border-zinc-800 rounded-lg p-2 pl-7 text-xs font-mono text-red-500 w-full text-right" />
+                                            </div>
+                                        </div>
+                                        <div className="pt-4 border-t border-zinc-800">
+                                            <label className="text-[8px] font-bold text-zinc-400 uppercase block mb-1">Mesmo Mês de 2025</label>
+                                            <div className="input-currency-container">
+                                                <span className="currency-symbol">R$</span>
+                                                <input type="number" value={c.same25} onChange={e => updateCompany(c.id, 'same25', e.target.value)} className="bg-transparent border border-zinc-800 rounded-lg p-2 pl-7 text-xs font-mono text-zinc-400 w-full text-right" />
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-
-                                {/* Dados Históricos solicitados */}
-                                <div className="grid grid-cols-3 gap-4 pt-4 border-t border-zinc-800/50">
-                                    <div>
-                                        <label className="text-[8px] font-bold text-zinc-500 uppercase block mb-1">Mesmo Mês 2025</label>
-                                        <div className="input-currency-container">
-                                            <span className="currency-symbol">R$</span>
-                                            <input type="number" value={s.lastYear} onChange={e => update(s.id, 'lastYear', e.target.value)} className="bg-transparent border border-zinc-800 rounded-lg p-1.5 pl-6 text-[10px] font-mono text-zinc-400 w-full text-right" />
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label className="text-[8px] font-bold text-zinc-500 uppercase block mb-1 text-emerald-900">Melhor Mês 2026</label>
-                                        <div className="input-currency-container">
-                                            <span className="currency-symbol text-emerald-900">R$</span>
-                                            <input type="number" value={s.best2026} onChange={e => update(s.id, 'best2026', e.target.value)} className="bg-transparent border border-zinc-800 rounded-lg p-1.5 pl-6 text-[10px] font-mono text-emerald-600/60 w-full text-right" />
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label className="text-[8px] font-bold text-zinc-500 uppercase block mb-1 text-red-900">Pior Mês 2026</label>
-                                        <div className="input-currency-container">
-                                            <span className="currency-symbol text-red-900">R$</span>
-                                            <input type="number" value={s.worst2026} onChange={e => update(s.id, 'worst2026', e.target.value)} className="bg-transparent border border-zinc-800 rounded-lg p-1.5 pl-6 text-[10px] font-mono text-red-600/60 w-full text-right" />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
                     </div>
                 </div>
             );
