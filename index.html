@@ -8,17 +8,13 @@
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #09090b; color: #f8fafc; }
         .bg-card { background-color: #18181b; border: 1px solid #27272a; }
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        .currency-input { position: relative; display: flex; align-items: center; }
-        .currency-symbol { position: absolute; left: 10px; font-size: 0.7rem; opacity: 0.5; pointer-events: none; }
     </style>
 </head>
-<body>
+<body class="pb-20">
     <div id="root"></div>
 
     <script type="text/babel">
@@ -27,19 +23,19 @@
         const formatCurrency = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v || 0);
 
         function App() {
-            // Estado Inicial Seguro
+            // Estado inicial limpo para evitar erros de versão
             const [sellers, setSellers] = useState(() => {
-                const saved = localStorage.getItem('soitic_v14');
+                const saved = localStorage.getItem('soitic_v_back');
                 return saved ? JSON.parse(saved).sellers : [
-                    { id: 1, name: 'Guilherme', sales: 0, contracts: 0, target: 6000, company: 'MEDSYSTEM' },
-                    { id: 2, name: 'Vanessa', sales: 0, contracts: 0, target: 6000, company: 'ECOS' },
-                    { id: 3, name: 'Luiz', sales: 0, contracts: 0, target: 3000, company: 'MEDSYSTEM' },
-                    { id: 4, name: 'João', sales: 0, contracts: 0, target: 3000, company: 'ECOS' }
+                    { id: 1, name: 'Guilherme', sales: 0, contracts: 0, company: 'MEDSYSTEM' },
+                    { id: 2, name: 'Vanessa', sales: 0, contracts: 0, company: 'ECOS' },
+                    { id: 3, name: 'Luiz', sales: 0, contracts: 0, company: 'MEDSYSTEM' },
+                    { id: 4, name: 'João', sales: 0, contracts: 0, company: 'ECOS' }
                 ];
             });
 
             const [companies, setCompanies] = useState(() => {
-                const saved = localStorage.getItem('soitic_v14');
+                const saved = localStorage.getItem('soitic_v_back');
                 return saved ? JSON.parse(saved).companies : [
                     { id: 'med', name: 'MEDSYSTEM', best: 0, worst: 0, lastYear: 0 },
                     { id: 'ecos', name: 'ECOS', best: 0, worst: 0, lastYear: 0 }
@@ -47,11 +43,11 @@
             });
 
             useEffect(() => {
-                localStorage.setItem('soitic_v14', JSON.stringify({ sellers, companies }));
+                localStorage.setItem('soitic_v_back', JSON.stringify({ sellers, companies }));
             }, [sellers, companies]);
 
-            // Lógica de Soma por Grupo (MEDSYSTEM vs ECOS)
-            const totals = useMemo(() => {
+            // Cálculo das Somas Automáticas
+            const groupTotals = useMemo(() => {
                 return sellers.reduce((acc, s) => {
                     if (!acc[s.company]) acc[s.company] = { sales: 0, contracts: 0 };
                     acc[s.company].sales += s.sales;
@@ -70,80 +66,64 @@
                 setCompanies(prev => prev.map(c => c.id === id ? { ...c, [field]: num } : c));
             };
 
-            const sortedSales = [...sellers].sort((a, b) => b.sales - a.sales);
-
             return (
-                <div className="max-w-4xl mx-auto p-6 space-y-10">
-                    <header className="flex justify-between items-center border-b border-zinc-800 pb-6">
-                        <div>
-                            <h1 className="text-3xl font-black italic tracking-tighter uppercase">Grupo <span className="text-amber-500">Soitic</span></h1>
-                            <p className="text-xs font-bold text-zinc-500 tracking-widest uppercase">Performance Dashboard</p>
-                        </div>
-                        <button onClick={() => {localStorage.clear(); location.reload();}} className="text-[10px] border border-zinc-800 px-3 py-1 rounded hover:bg-red-900/20 transition-all text-zinc-500">LIMPAR CACHE</button>
+                <div className="max-w-4xl mx-auto p-6 space-y-8">
+                    <header className="py-6 border-b border-zinc-800 flex justify-between items-center">
+                        <h1 className="text-2xl font-black uppercase italic">Grupo <span className="text-amber-500">Soitic</span></h1>
+                        <button onClick={() => {localStorage.clear(); location.reload();}} className="text-[10px] text-zinc-600 hover:text-red-500">Limpar Dados</button>
                     </header>
 
-                    {/* RANKING SIMPLIFICADO */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="bg-emerald-500/10 p-6 rounded-2xl border border-emerald-500/20">
-                            <h2 className="text-xs font-black text-emerald-500 uppercase mb-4 tracking-widest">Top Vendedor (R$)</h2>
-                            <p className="text-2xl font-black italic">{sortedSales[0].name}</p>
-                            <p className="text-sm text-emerald-400 font-mono">{formatCurrency(sortedSales[0].sales)}</p>
-                        </div>
-                        <div className="bg-blue-500/10 p-6 rounded-2xl border border-blue-500/20">
-                            <h2 className="text-xs font-black text-blue-500 uppercase mb-4 tracking-widest">Total do Grupo</h2>
-                            <p className="text-2xl font-black italic">{formatCurrency(sellers.reduce((a,b) => a + b.sales, 0))}</p>
-                        </div>
-                    </div>
-
-                    {/* VENDEDORES */}
-                    <div className="space-y-4">
-                        <h3 className="text-[10px] font-black uppercase text-zinc-500 tracking-[0.3em]">Gestão Individual</h3>
+                    {/* SEÇÃO VENDEDORES */}
+                    <div className="grid gap-4">
+                        <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-500">Lançamentos Individuais</h3>
                         {sellers.map(s => (
-                            <div key={s.id} className="bg-card p-5 rounded-2xl flex flex-col md:flex-row items-center gap-6">
-                                <div className="w-full md:w-32">
-                                    <p className="font-black uppercase">{s.name}</p>
-                                    <p className="text-[9px] text-amber-500 font-bold italic">{s.company}</p>
+                            <div key={s.id} className="bg-card p-4 rounded-xl grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                                <div>
+                                    <p className="font-bold">{s.name}</p>
+                                    <p className="text-[10px] text-amber-500 font-bold uppercase">{s.company}</p>
                                 </div>
-                                <div className="grid grid-cols-2 gap-4 flex-1 w-full">
-                                    <div className="currency-input">
-                                        <span className="currency-symbol text-emerald-500">R$</span>
-                                        <input type="number" value={s.sales} onChange={e => updateSeller(s.id, 'sales', e.target.value)} className="bg-zinc-900 w-full p-2 pl-8 rounded-lg border border-zinc-800 text-sm font-mono text-emerald-400 outline-none focus:border-emerald-500" />
-                                    </div>
-                                    <div className="currency-input">
-                                        <span className="currency-symbol text-blue-500">CT</span>
-                                        <input type="number" value={s.contracts} onChange={e => updateSeller(s.id, 'contracts', e.target.value)} className="bg-zinc-900 w-full p-2 pl-8 rounded-lg border border-zinc-800 text-sm font-mono text-blue-400 outline-none focus:border-blue-500" />
-                                    </div>
+                                <div className="space-y-1">
+                                    <span className="text-[9px] text-zinc-500 uppercase">Vendas (R$)</span>
+                                    <input type="number" value={s.sales} onChange={e => updateSeller(s.id, 'sales', e.target.value)} className="bg-zinc-900 w-full p-2 rounded border border-zinc-800 text-emerald-500 font-mono" />
+                                </div>
+                                <div className="space-y-1">
+                                    <span className="text-[9px] text-zinc-500 uppercase">Aceites (Qtd)</span>
+                                    <input type="number" value={s.contracts} onChange={e => updateSeller(s.id, 'contracts', e.target.value)} className="bg-zinc-900 w-full p-2 rounded border border-zinc-800 text-blue-500 font-mono" />
                                 </div>
                             </div>
                         ))}
                     </div>
 
-                    {/* SOMAS POR EMPRESA */}
-                    <div className="grid md:grid-cols-2 gap-6 pt-10 border-t border-zinc-800">
+                    {/* SEÇÃO EMPRESAS COM SOMA AUTOMÁTICA */}
+                    <div className="grid md:grid-cols-2 gap-6 pt-6 border-t border-zinc-800">
                         {companies.map(c => (
-                            <div key={c.id} className="bg-zinc-900/50 p-6 rounded-3xl border border-zinc-800">
-                                <h4 className="text-xl font-black italic mb-6 text-white">{c.name}</h4>
+                            <div key={c.id} className="bg-card p-6 rounded-2xl border-t-4 border-amber-600">
+                                <h4 className="font-black text-lg mb-4">{c.name}</h4>
                                 
-                                {/* AQUI ESTÁ O QUE VOCÊ PEDIU: SOMA AUTOMÁTICA */}
-                                <div className="grid grid-cols-2 gap-4 mb-6">
-                                    <div className="bg-zinc-950 p-3 rounded-xl border border-zinc-800">
-                                        <span className="text-[8px] font-bold text-zinc-500 uppercase block">Total Vendas</span>
-                                        <span className="text-xs font-mono font-bold text-emerald-500">{formatCurrency(totals[c.name]?.sales)}</span>
+                                {/* DISPLAY DAS SOMAS AUTOMÁTICAS */}
+                                <div className="grid grid-cols-2 gap-2 mb-6">
+                                    <div className="bg-zinc-900 p-3 rounded-lg border border-zinc-800">
+                                        <p className="text-[8px] text-zinc-500 uppercase font-bold">Total Vendas</p>
+                                        <p className="text-sm font-mono text-emerald-500 font-bold">{formatCurrency(groupTotals[c.name]?.sales)}</p>
                                     </div>
-                                    <div className="bg-zinc-950 p-3 rounded-xl border border-zinc-800">
-                                        <span className="text-[8px] font-bold text-zinc-500 uppercase block">Total Aceites</span>
-                                        <span className="text-xs font-mono font-bold text-blue-500">{totals[c.name]?.contracts || 0} CT</span>
+                                    <div className="bg-zinc-900 p-3 rounded-lg border border-zinc-800">
+                                        <p className="text-[8px] text-zinc-500 uppercase font-bold">Total Aceites</p>
+                                        <p className="text-sm font-mono text-blue-500 font-bold">{groupTotals[c.name]?.contracts || 0} CT</p>
                                     </div>
                                 </div>
 
-                                <div className="space-y-3">
-                                    <div className="currency-input">
-                                        <span className="currency-symbol text-zinc-500">R$</span>
-                                        <input type="number" placeholder="Melhor Mês" value={c.best} onChange={e => updateCompany(c.id, 'best', e.target.value)} className="bg-zinc-950 w-full p-2 pl-8 rounded-lg border border-zinc-800 text-[10px] font-mono text-white" />
+                                <div className="space-y-4">
+                                    <div className="flex justify-between items-center">
+                                        <label className="text-[10px] uppercase text-zinc-400">Melhor Mês 2026</label>
+                                        <input type="number" value={c.best} onChange={e => updateCompany(c.id, 'best', e.target.value)} className="bg-transparent border-b border-zinc-800 text-right font-mono text-xs w-24 outline-none focus:border-amber-500" />
                                     </div>
-                                    <div className="currency-input">
-                                        <span className="currency-symbol text-zinc-500">R$</span>
-                                        <input type="number" placeholder="Pior Mês" value={c.worst} onChange={e => updateCompany(c.id, 'worst', e.target.value)} className="bg-zinc-950 w-full p-2 pl-8 rounded-lg border border-zinc-800 text-[10px] font-mono text-white" />
+                                    <div className="flex justify-between items-center">
+                                        <label className="text-[10px] uppercase text-zinc-400">Pior Mês 2026</label>
+                                        <input type="number" value={c.worst} onChange={e => updateCompany(c.id, 'worst', e.target.value)} className="bg-transparent border-b border-zinc-800 text-right font-mono text-xs w-24 outline-none focus:border-red-500" />
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                        <label className="text-[10px] uppercase text-zinc-400">Mesmo Mês 2025</label>
+                                        <input type="number" value={c.lastYear} onChange={e => updateCompany(c.id, 'lastYear', e.target.value)} className="bg-transparent border-b border-zinc-800 text-right font-mono text-xs w-24 outline-none focus:border-zinc-500" />
                                     </div>
                                 </div>
                             </div>
