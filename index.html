@@ -83,6 +83,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
 
     <script>
+        // Configurações do seu projeto
         const firebaseConfig = {
             apiKey: "AIzaSyAbIBmJwJDWslFiJ9TazuLVHXM4yZTBDSs",
             authDomain: "dashboard-financeiro-cec1f.firebaseapp.com",
@@ -93,6 +94,7 @@
             appId: "1:642067118768:web:26307698c71a113099d975"
         };
 
+        // Inicialização
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
@@ -101,6 +103,7 @@
             ecos: { atual: 0, ref2025: 0, pior2026: 0, melhor2026: 0 }
         };
 
+        // Escuta mudanças em tempo real
         db.ref('dashboard_data').on('value', (snapshot) => {
             const val = snapshot.val();
             if (val) {
@@ -121,6 +124,7 @@
             i.value = v !== '0,00' ? 'R$ ' + v : '';
             
             const num = parseFloat(v.replace(/\./g, '').replace(',', '.')) || 0;
+            // Salva no Firebase
             db.ref(`dashboard_data/${emp}/${campo}`).set(num);
         }
 
@@ -129,7 +133,7 @@
                 ['atual', 'ref2025', 'pior2026', 'melhor2026'].forEach(f => {
                     const el = document.getElementById(`${emp}-${f}`);
                     if (document.activeElement !== el) {
-                        el.value = dados[emp][f] > 0 ? formatar(dados[emp][f]) : '';
+                        el.value = (dados[emp] && dados[emp][f] > 0) ? formatar(dados[emp][f]) : '';
                     }
                 });
             });
@@ -139,4 +143,42 @@
             if (!base || !atual) return '';
             const diff = atual - base;
             const isPos = diff >= 0;
-            const corTxt =
+            const corTxt = isPos ? 'text-green-500' : 'text-rose-500';
+            const labelAcao = isPos ? 'Superou em:' : 'Faltam:';
+            
+            return `
+                <div class="status-card p-4 rounded-[2rem] bg-white shadow-md flex flex-col justify-center border-l-8 ${isPos ? 'border-green-400' : 'border-rose-400'}">
+                    <div class="flex justify-between items-start mb-1">
+                        <div class="flex items-center gap-2">
+                            <span class="text-2xl">${icone}</span>
+                            <span class="text-[10px] font-black text-slate-400 uppercase tracking-tighter">${titulo}</span>
+                        </div>
+                        <span class="text-[12px] font-black ${corTxt} bg-slate-50 px-2 py-0.5 rounded-full border border-slate-100">
+                            ${((atual/base)*100).toFixed(1)}%
+                        </span>
+                    </div>
+                    <div class="flex justify-between items-end">
+                        <p class="text-[11px] font-bold text-slate-500 italic">Meta: ${formatar(base)}</p>
+                        <div class="text-right">
+                            <p class="text-[9px] font-black text-slate-400 uppercase leading-none mb-1">${labelAcao}</p>
+                            <p class="text-2xl font-[900] ${corTxt} leading-none tracking-tight">
+                                ${isPos ? '▲' : '▼'} ${formatar(Math.abs(diff))}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function calcular(emp) {
+            const d = dados[emp];
+            if (!d) return;
+            let html = "";
+            html += criarCard("Vs. Mês Anterior (2025)", d.ref2025, d.atual, "📈");
+            html += criarCard("Vs. Pior Mês de 2026", d.pior2026, d.atual, "📉");
+            html += criarCard("Rumo ao Melhor de 2026", d.melhor2026, d.atual, "🏆");
+            document.getElementById(`res-${emp}`).innerHTML = html;
+        }
+    </script>
+</body>
+</html>
