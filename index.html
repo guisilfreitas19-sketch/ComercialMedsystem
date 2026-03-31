@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Monitor de Metas V1.9 | SOITIC</title>
+    <title>Monitor de Metas V2.0 Final | SOITIC</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
@@ -18,7 +18,6 @@
         .bg-main { background: radial-gradient(circle at top right, #1e293b, #020617); }
         .title-glow { text-shadow: 0 0 20px rgba(16, 185, 129, 0.3); font-style: italic; }
         .res-card { border-left-width: 6px; height: 78px; transition: transform 0.2s; }
-        .res-card:hover { transform: scale(1.01); }
         input::placeholder { color: #cbd5e1; opacity: 0.5; }
     </style>
 </head>
@@ -28,7 +27,7 @@
         <h1 class="text-3xl font-[800] text-white tracking-widest uppercase title-glow">
             MONITOR DE <span class="text-emerald-400">METAS & RECORDES</span>
         </h1>
-        <div class="text-[10px] text-emerald-500/50 font-bold uppercase tracking-widest">Sincronização Ativa V1.9 Final</div>
+        <div class="text-[10px] text-emerald-500/50 font-bold uppercase tracking-widest">Sincronização Ativa V2.0 Final</div>
     </div>
 
     <div class="max-w-[100%] mx-auto grid grid-cols-2 gap-6">
@@ -108,6 +107,7 @@
 
         let dados = { med: {}, ecos: {} };
 
+        // Recupera dados salvos e mantém sincronia
         db.ref('dashboard_data').on('value', (snap) => {
             const val = snap.val();
             if(val) { dados = val; renderizarTudo(); }
@@ -136,12 +136,21 @@
             });
         }
 
+        // Lógica corrigida para mostrar "Quanto Falta %"
         function criarCard(titulo, base, atual, icone) {
             if (!base || base <= 0) return '';
             const diff = atual - base;
             const isPos = diff >= 0;
-            const porc = ((atual/base)*100).toFixed(1);
+            
+            let porc;
+            if (isPos) {
+                porc = (((atual / base) - 1) * 100).toFixed(1);
+            } else {
+                porc = ((Math.abs(diff) / base) * 100).toFixed(1);
+            }
+            
             const cor = isPos ? 'emerald' : 'rose';
+            const prefixo = isPos ? '+' : '';
             
             return `
                 <div class="res-card p-3 px-5 rounded-[1.5rem] border-2 bg-${cor}-50/40 border-${cor}-200 flex items-center justify-between shadow-sm">
@@ -152,8 +161,10 @@
                         <p class="text-3xl font-800 text-${cor}-600 tracking-tighter">${formatarMoeda(Math.abs(diff))}</p>
                     </div>
                     <div class="text-right">
-                        <div class="text-xl font-800 text-${cor}-500 tracking-tighter">${porc}%</div>
-                        <div class="text-[8px] font-black uppercase px-3 py-0.5 rounded-full bg-${cor}-500 text-white shadow-sm">${isPos ? 'Superou' : 'Faltam'}</div>
+                        <div class="text-xl font-800 text-${cor}-500 tracking-tighter">${prefixo}${porc}%</div>
+                        <div class="text-[8px] font-black uppercase px-3 py-0.5 rounded-full bg-${cor}-500 text-white shadow-sm">
+                            ${isPos ? 'Superou' : 'Faltam'}
+                        </div>
                     </div>
                 </div>
             `;
