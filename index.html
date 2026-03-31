@@ -8,24 +8,34 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,800;1,800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden; }
-        .glass-card { background: #ffffff; height: 84vh; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
+        .glass-card { background: #ffffff; height: 82vh; box-shadow: 0 20px 50px rgba(0,0,0,0.4); }
         .status-card { transition: all 0.3s ease; border: 1px solid #f1f5f9; }
         .bg-main { background: radial-gradient(circle at top right, #1e293b, #0f172a); }
         .title-glow { text-shadow: 0 0 20px rgba(52, 211, 153, 0.3); }
+        .version-badge { background: linear-gradient(90deg, #10b981, #3b82f6); }
     </style>
 </head>
 <body class="bg-main p-4 italic text-slate-800">
 
-    <div class="text-center pb-5 pt-1">
+    <div class="text-center pb-5 pt-1 relative">
         <h1 class="text-4xl font-[900] text-white tracking-[0.2em] uppercase italic title-glow">
             MONITOR DE <span class="text-emerald-400">METAS & RECORDES</span>
         </h1>
-        <p class="text-slate-400 text-[10px] font-bold tracking-widest uppercase mt-1 opacity-80">
-            Grupo Soitic • Comparativo Ano Anterior • Extremos 2026 • Performance Real-Time
+        
+        <div class="flex justify-center items-center gap-3 mt-2">
+            <div class="h-[1px] w-12 bg-white/20"></div>
+            <span class="version-badge text-white text-[11px] px-3 py-0.5 rounded-full font-black tracking-widest uppercase shadow-lg">
+                Sincronizado V1.1
+            </span>
+            <div class="h-[1px] w-12 bg-white/20"></div>
+        </div>
+
+        <p class="text-slate-500 text-[9px] font-bold tracking-[0.3em] uppercase mt-2 opacity-60">
+            Grupo Soitic • Performance Real-Time Med/Ecos
         </p>
     </div>
 
-    <div class="max-w-full mx-auto grid grid-cols-2 gap-6 relative">
+    <div class="max-w-full mx-auto grid grid-cols-2 gap-6">
         
         <div class="glass-card rounded-[3rem] p-6 flex flex-col border-b-[12px] border-emerald-500">
             <h2 class="text-3xl font-[900] text-emerald-600 mb-4 tracking-tighter text-center uppercase">Ecos</h2>
@@ -76,11 +86,6 @@
                 <div id="res-med" class="space-y-3 pt-2"></div>
             </div>
         </div>
-    </div>
-
-    <div class="fixed bottom-2 right-4 flex items-center gap-2">
-        <span class="text-[9px] font-black text-white/20 uppercase tracking-[0.2em]">Monitor de Metas & Recordes</span>
-        <span class="bg-emerald-500/20 text-emerald-400 text-[10px] px-2 py-0.5 rounded-md font-bold border border-emerald-500/30">V1.1</span>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
