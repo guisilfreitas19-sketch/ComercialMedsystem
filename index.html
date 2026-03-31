@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monitor de Metas & Recordes V1.2 | SOITIC</title>
+    <title>Monitor de Metas & Recordes V1.3 | SOITIC</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,800;1,800&display=swap');
@@ -12,8 +12,7 @@
         .bg-main { background: radial-gradient(circle at top right, #1e293b, #0f172a); }
         .title-glow { text-shadow: 0 0 20px rgba(52, 211, 153, 0.3); }
         .version-badge { background: linear-gradient(90deg, #10b981, #3b82f6); }
-        /* Estilo para os cards de resultado ficarem mais limpos */
-        .res-card { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .res-card { transition: all 0.4s ease; }
     </style>
 </head>
 <body class="bg-main p-4 italic text-slate-800">
@@ -25,7 +24,7 @@
         <div class="flex justify-center items-center gap-3 mt-2">
             <div class="h-[1px] w-12 bg-white/10"></div>
             <span class="version-badge text-white text-[11px] px-3 py-0.5 rounded-full font-black tracking-widest uppercase shadow-lg">
-                Sincronizado V1.2
+                Sincronizado V1.3
             </span>
             <div class="h-[1px] w-12 bg-white/10"></div>
         </div>
@@ -45,12 +44,12 @@
                         <label class="text-[8px] font-extrabold text-slate-400 uppercase block mb-1">Mês Ref. 2025</label>
                         <input type="text" id="ecos-ref2025" oninput="mascara(this, 'ecos', 'ref2025')" class="w-full text-center font-black text-xs bg-transparent outline-none text-slate-600" placeholder="R$ 0,00">
                     </div>
-                    <div class="bg-slate-50 p-2 rounded-2xl border border-slate-100 text-center text-rose-600">
-                        <label class="text-[8px] font-extrabold text-slate-400 uppercase block mb-1">Pior Mês 2026</label>
+                    <div class="bg-slate-50 p-2 rounded-2xl border border-slate-100 text-center">
+                        <label class="text-[8px] font-extrabold text-slate-400 uppercase block mb-1 text-rose-500">Pior Mês 2026</label>
                         <input type="text" id="ecos-pior2026" oninput="mascara(this, 'ecos', 'pior2026')" class="w-full text-center font-black text-xs bg-transparent outline-none text-rose-500" placeholder="R$ 0,00">
                     </div>
-                    <div class="bg-slate-50 p-2 rounded-2xl border border-slate-100 text-center text-emerald-600">
-                        <label class="text-[8px] font-extrabold text-slate-400 uppercase block mb-1">Melhor Mês 2026</label>
+                    <div class="bg-slate-50 p-2 rounded-2xl border border-slate-100 text-center">
+                        <label class="text-[8px] font-extrabold text-slate-400 uppercase block mb-1 text-emerald-500">Melhor Mês 2026</label>
                         <input type="text" id="ecos-melhor2026" oninput="mascara(this, 'ecos', 'melhor2026')" class="w-full text-center font-black text-xs bg-transparent outline-none text-emerald-500" placeholder="R$ 0,00">
                     </div>
                 </div>
@@ -70,12 +69,12 @@
                         <label class="text-[8px] font-extrabold text-slate-400 uppercase block mb-1">Mês Ref. 2025</label>
                         <input type="text" id="med-ref2025" oninput="mascara(this, 'med', 'ref2025')" class="w-full text-center font-black text-xs bg-transparent outline-none text-slate-600" placeholder="R$ 0,00">
                     </div>
-                    <div class="bg-slate-50 p-2 rounded-2xl border border-slate-100 text-center text-rose-600">
-                        <label class="text-[8px] font-extrabold text-slate-400 uppercase block mb-1">Pior Mês 2026</label>
+                    <div class="bg-slate-50 p-2 rounded-2xl border border-slate-100 text-center">
+                        <label class="text-[8px] font-extrabold text-slate-400 uppercase block mb-1 text-rose-500">Pior Mês 2026</label>
                         <input type="text" id="med-pior2026" oninput="mascara(this, 'med', 'pior2026')" class="w-full text-center font-black text-xs bg-transparent outline-none text-rose-500" placeholder="R$ 0,00">
                     </div>
-                    <div class="bg-slate-50 p-2 rounded-2xl border border-slate-100 text-center text-emerald-600">
-                        <label class="text-[8px] font-extrabold text-slate-400 uppercase block mb-1">Melhor Mês 2026</label>
+                    <div class="bg-slate-50 p-2 rounded-2xl border border-slate-100 text-center">
+                        <label class="text-[8px] font-extrabold text-slate-400 uppercase block mb-1 text-emerald-500">Melhor Mês 2026</label>
                         <input type="text" id="med-melhor2026" oninput="mascara(this, 'med', 'melhor2026')" class="w-full text-center font-black text-xs bg-transparent outline-none text-emerald-500" placeholder="R$ 0,00">
                     </div>
                 </div>
@@ -100,28 +99,32 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let dados = { med: {}, ecos: {} };
+        let dados = { med: { atual:0, ref2025:0, pior2026:0, melhor2026:0 }, ecos: { atual:0, ref2025:0, pior2026:0, melhor2026:0 } };
 
         db.ref('dashboard_data').on('value', (snap) => {
-            const v = snap.val(); if(v) { dados = v; atualizar(); }
+            const v = snap.val();
+            if(v) { 
+                dados = v; 
+                atualizarTela(); 
+            }
         });
 
         function formatar(v) { return v.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' }); }
 
         function mascara(i, emp, campo) {
             let v = i.value.replace(/\D/g,'');
-            v = (v/100).toFixed(2) + '';
-            const num = parseFloat(v);
+            v = (v/100).toFixed(2);
+            const num = parseFloat(v) || 0;
             db.ref(`dashboard_data/${emp}/${campo}`).set(num);
         }
 
-        function atualizar() {
+        function atualizarTela() {
             ['med', 'ecos'].forEach(emp => {
                 ['atual', 'ref2025', 'pior2026', 'melhor2026'].forEach(f => {
                     const el = document.getElementById(`${emp}-${f}`);
                     if (el && document.activeElement !== el) {
-                        const val = dados[emp][f] || 0;
-                        el.value = val > 0 ? formatar(val) : '';
+                        const valor = (dados[emp] && dados[emp][f]) ? dados[emp][f] : 0;
+                        el.value = valor > 0 ? formatar(valor) : '';
                     }
                 });
                 calcular(emp);
@@ -129,7 +132,7 @@
         }
 
         function criarCard(titulo, base, atual, icone) {
-            if (!base || !atual) return '';
+            if (!base || !atual || base <= 0) return '';
             const diff = atual - base;
             const isPos = diff >= 0;
             const porc = Math.min((atual/base)*100, 100);
@@ -144,7 +147,7 @@
                     </div>
                     <div class="flex justify-between items-end relative z-10">
                         <div>
-                            <p class="text-[9px] font-bold text-slate-400 uppercase leading-none">Meta: ${formatar(base)}</p>
+                            <p class="text-[9px] font-bold text-slate-500 uppercase leading-none">Meta: ${formatar(base)}</p>
                             <p class="text-3xl font-[900] ${corTexto} tracking-tighter mt-1">${formatar(Math.abs(diff))}</p>
                         </div>
                         <div class="text-right">
@@ -160,10 +163,11 @@
 
         function calcular(emp) {
             const d = dados[emp];
+            if(!d) return;
             let html = "";
-            html += criarCard("Comparativo 2025", d.ref2025, d.atual, "📈");
-            html += criarCard("Recorde Negativo 2026", d.pior2026, d.atual, "📉");
-            html += criarCard("Meta Recorde 2026", d.melhor2026, d.atual, "🏆");
+            html += criarCard("Vs. Março 2025", parseFloat(d.ref2025), parseFloat(d.atual), "📈");
+            html += criarCard("Vs. Pior Mês 2026", parseFloat(d.pior2026), parseFloat(d.atual), "📉");
+            html += criarCard("Vs. Melhor Mês 2026", parseFloat(d.melhor2026), parseFloat(d.atual), "🏆");
             document.getElementById(`res-${emp}`).innerHTML = html;
         }
     </script>
