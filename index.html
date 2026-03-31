@@ -3,84 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Financeiro Pro</title>
+    <title>Monitor de Metas & Recordes | SOITIC</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,800;1,800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden; }
-        .glass-card { background: #ffffff; height: 97vh; box-shadow: 0 20px 50px rgba(0,0,0,0.2); }
+        .glass-card { background: #ffffff; height: 86vh; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
         .status-card { transition: all 0.3s ease; border: 1px solid #f1f5f9; }
         .bg-main { background: radial-gradient(circle at top right, #1e293b, #0f172a); }
+        .title-glow { text-shadow: 0 0 20px rgba(52, 211, 153, 0.3); }
     </style>
 </head>
-<body class="bg-main p-3 italic text-slate-800">
+<body class="bg-main p-4 italic text-slate-800">
 
-    <div class="max-w-full mx-auto grid grid-cols-2 gap-4">
+    <div class="text-center pb-5 pt-1">
+        <h1 class="text-4xl font-[900] text-white tracking-[0.2em] uppercase italic title-glow">
+            MONITOR DE <span class="text-emerald-400">METAS & RECORDES</span>
+        </h1>
+        <p class="text-slate-400 text-[10px] font-bold tracking-widest uppercase mt-1 opacity-80">
+            Grupo Soitic • Comparativo Ano Anterior • Extremos 2026 • Performance Real-Time
+        </p>
+    </div>
+
+    <div class="max-w-full mx-auto grid grid-cols-2 gap-6">
         
-        <div class="glass-card rounded-[2.5rem] p-5 flex flex-col border-b-[10px] border-emerald-500">
+        <div class="glass-card rounded-[3rem] p-6 flex flex-col border-b-[12px] border-emerald-500">
             <h2 class="text-3xl font-[900] text-emerald-600 mb-4 tracking-tighter text-center uppercase">Ecos</h2>
-            
             <div class="space-y-4 flex-grow">
-                <div class="bg-emerald-50/50 p-3 rounded-3xl border-2 border-emerald-100">
+                <div class="bg-emerald-50/50 p-4 rounded-3xl border-2 border-emerald-100 shadow-inner">
                     <label class="text-[10px] font-black text-emerald-400 uppercase tracking-[0.2em] block mb-1 text-center font-sans">Faturamento Atual</label>
-                    <input type="text" id="ecos-atual" oninput="mascara(this, 'ecos', 'atual')" class="w-full bg-transparent p-1 rounded-xl text-4xl font-[900] text-emerald-700 outline-none text-center" placeholder="R$ 0,00">
+                    <input type="text" id="ecos-atual" oninput="mascara(this, 'ecos', 'atual')" class="w-full bg-transparent p-1 rounded-xl text-5xl font-[900] text-emerald-700 outline-none text-center" placeholder="R$ 0,00">
                 </div>
-
-                <div class="grid grid-cols-3 gap-2">
-                    <div class="bg-slate-50 p-2 rounded-2xl border border-slate-100">
-                        <label class="text-[8px] font-extrabold text-slate-400 uppercase block text-center mb-1">Março 2025</label>
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="bg-slate-50 p-2 rounded-2xl border border-slate-100 text-center">
+                        <label class="text-[8px] font-extrabold text-slate-400 uppercase block mb-1">Mês Ref. 2025</label>
                         <input type="text" id="ecos-ref2025" oninput="mascara(this, 'ecos', 'ref2025')" class="w-full text-center font-black text-xs bg-transparent outline-none text-slate-600" placeholder="R$ 0,00">
                     </div>
-                    <div class="bg-slate-50 p-2 rounded-2xl border border-slate-100">
-                        <label class="text-[8px] font-extrabold text-slate-400 uppercase block text-center mb-1">Pior 2026</label>
+                    <div class="bg-slate-50 p-2 rounded-2xl border border-slate-100 text-center">
+                        <label class="text-[8px] font-extrabold text-slate-400 uppercase block mb-1">Pior Mês 2026</label>
                         <input type="text" id="ecos-pior2026" oninput="mascara(this, 'ecos', 'pior2026')" class="w-full text-center font-black text-xs bg-transparent outline-none text-slate-600" placeholder="R$ 0,00">
                     </div>
-                    <div class="bg-slate-50 p-2 rounded-2xl border border-slate-100">
-                        <label class="text-[8px] font-extrabold text-slate-400 uppercase block text-center mb-1">Melhor 2026</label>
+                    <div class="bg-slate-50 p-2 rounded-2xl border border-slate-100 text-center">
+                        <label class="text-[8px] font-extrabold text-slate-400 uppercase block mb-1">Melhor Mês 2026</label>
                         <input type="text" id="ecos-melhor2026" oninput="mascara(this, 'ecos', 'melhor2026')" class="w-full text-center font-black text-xs bg-transparent outline-none text-slate-600" placeholder="R$ 0,00">
                     </div>
                 </div>
-
                 <div id="res-ecos" class="space-y-3 pt-2"></div>
             </div>
         </div>
 
-        <div class="glass-card rounded-[2.5rem] p-5 flex flex-col border-b-[10px] border-indigo-500">
+        <div class="glass-card rounded-[3rem] p-6 flex flex-col border-b-[12px] border-indigo-500">
             <h2 class="text-3xl font-[900] text-indigo-600 mb-4 tracking-tighter text-center uppercase">Medsystem</h2>
-            
             <div class="space-y-4 flex-grow">
-                <div class="bg-indigo-50/50 p-3 rounded-3xl border-2 border-indigo-100">
+                <div class="bg-indigo-50/50 p-4 rounded-3xl border-2 border-indigo-100 shadow-inner">
                     <label class="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] block mb-1 text-center font-sans">Faturamento Atual</label>
-                    <input type="text" id="med-atual" oninput="mascara(this, 'med', 'atual')" class="w-full bg-transparent p-1 rounded-xl text-4xl font-[900] text-indigo-700 outline-none text-center" placeholder="R$ 0,00">
+                    <input type="text" id="med-atual" oninput="mascara(this, 'med', 'atual')" class="w-full bg-transparent p-1 rounded-xl text-5xl font-[900] text-indigo-700 outline-none text-center" placeholder="R$ 0,00">
                 </div>
-
-                <div class="grid grid-cols-3 gap-2">
-                    <div class="bg-slate-50 p-2 rounded-2xl border border-slate-100">
-                        <label class="text-[8px] font-extrabold text-slate-400 uppercase block text-center mb-1">Março 2025</label>
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="bg-slate-50 p-2 rounded-2xl border border-slate-100 text-center">
+                        <label class="text-[8px] font-extrabold text-slate-400 uppercase block mb-1">Mês Ref. 2025</label>
                         <input type="text" id="med-ref2025" oninput="mascara(this, 'med', 'ref2025')" class="w-full text-center font-black text-xs bg-transparent outline-none text-slate-600" placeholder="R$ 0,00">
                     </div>
-                    <div class="bg-slate-50 p-2 rounded-2xl border border-slate-100">
-                        <label class="text-[8px] font-extrabold text-slate-400 uppercase block text-center mb-1">Pior 2026</label>
+                    <div class="bg-slate-50 p-2 rounded-2xl border border-slate-100 text-center">
+                        <label class="text-[8px] font-extrabold text-slate-400 uppercase block mb-1">Pior Mês 2026</label>
                         <input type="text" id="med-pior2026" oninput="mascara(this, 'med', 'pior2026')" class="w-full text-center font-black text-xs bg-transparent outline-none text-slate-600" placeholder="R$ 0,00">
                     </div>
-                    <div class="bg-slate-50 p-2 rounded-2xl border border-slate-100">
-                        <label class="text-[8px] font-extrabold text-slate-400 uppercase block text-center mb-1">Melhor 2026</label>
+                    <div class="bg-slate-50 p-2 rounded-2xl border border-slate-100 text-center">
+                        <label class="text-[8px] font-extrabold text-slate-400 uppercase block mb-1">Melhor Mês 2026</label>
                         <input type="text" id="med-melhor2026" oninput="mascara(this, 'med', 'melhor2026')" class="w-full text-center font-black text-xs bg-transparent outline-none text-slate-600" placeholder="R$ 0,00">
                     </div>
                 </div>
-
                 <div id="res-med" class="space-y-3 pt-2"></div>
             </div>
         </div>
 
     </div>
 
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+
     <script>
-        const storeKey = 'dash_v_premium_v1';
-        let dados = JSON.parse(localStorage.getItem(storeKey)) || {
+        const firebaseConfig = {
+            apiKey: "AIzaSyAbIBmJwJDWslFiJ9TazuLVHXM4yZTBDSs",
+            authDomain: "dashboard-financeiro-cec1f.firebaseapp.com",
+            databaseURL: "https://dashboard-financeiro-cec1f-default-rtdb.firebaseio.com",
+            projectId: "dashboard-financeiro-cec1f",
+            storageBucket: "dashboard-financeiro-cec1f.firebasestorage.app",
+            messagingSenderId: "642067118768",
+            appId: "1:642067118768:web:26307698c71a113099d975"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let dados = {
             med: { atual: 0, ref2025: 0, pior2026: 0, melhor2026: 0 },
             ecos: { atual: 0, ref2025: 0, pior2026: 0, melhor2026: 0 }
         };
+
+        db.ref('dashboard_data').on('value', (snapshot) => {
+            const val = snapshot.val();
+            if (val) {
+                dados = val;
+                atualizarInputsVisualmente();
+                ['med', 'ecos'].forEach(emp => calcular(emp));
+            }
+        });
 
         function formatar(v) { return v.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' }); }
 
@@ -91,59 +119,24 @@
             v = v.replace(/(\d)(\d{3})(\d{3}),/g, "$1.$2.$3,");
             v = v.replace(/(\d)(\d{3}),/g, "$1.$2,");
             i.value = v !== '0,00' ? 'R$ ' + v : '';
-            dados[emp][campo] = parseFloat(v.replace(/\./g, '').replace(',', '.')) || 0;
-            localStorage.setItem(storeKey, JSON.stringify(dados));
-            calcular(emp);
+            
+            const num = parseFloat(v.replace(/\./g, '').replace(',', '.')) || 0;
+            db.ref(`dashboard_data/${emp}/${campo}`).set(num);
+        }
+
+        function atualizarInputsVisualmente() {
+            ['med', 'ecos'].forEach(emp => {
+                ['atual', 'ref2025', 'pior2026', 'melhor2026'].forEach(f => {
+                    const el = document.getElementById(`${emp}-${f}`);
+                    if (document.activeElement !== el) {
+                        el.value = dados[emp][f] > 0 ? formatar(dados[emp][f]) : '';
+                    }
+                });
+            });
         }
 
         function criarCard(titulo, base, atual, icone) {
             if (!base || !atual) return '';
             const diff = atual - base;
             const isPos = diff >= 0;
-            const corTxt = isPos ? 'text-green-500' : 'text-rose-500';
-            const labelAcao = isPos ? 'Superou em:' : 'Faltam:';
-            
-            return `
-                <div class="status-card p-4 rounded-[2rem] bg-white shadow-sm flex flex-col justify-center border-l-4 ${isPos ? 'border-green-400' : 'border-rose-400'}">
-                    <div class="flex justify-between items-start mb-1">
-                        <div class="flex items-center gap-2">
-                            <span class="text-xl">${icone}</span>
-                            <span class="text-[10px] font-black text-slate-400 uppercase tracking-tighter">${titulo}</span>
-                        </div>
-                        <span class="text-[11px] font-black ${corTxt} bg-slate-50 px-2 py-0.5 rounded-full border border-slate-100">
-                            ${((atual/base)*100).toFixed(1)}%
-                        </span>
-                    </div>
-                    <div class="flex justify-between items-end">
-                        <p class="text-[11px] font-bold text-slate-500">Base: ${formatar(base)}</p>
-                        <div class="text-right">
-                            <p class="text-[9px] font-black text-slate-400 uppercase leading-none mb-1">${labelAcao}</p>
-                            <p class="text-xl font-[900] ${corTxt} leading-none tracking-tight">
-                                ${isPos ? '▲' : '▼'} ${formatar(Math.abs(diff))}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        function calcular(emp) {
-            const d = dados[emp];
-            let html = "";
-            html += criarCard("Comparativo Março 2025", d.ref2025, d.atual, "📈");
-            html += criarCard("Pior Mês de 2026", d.pior2026, d.atual, "📉");
-            html += criarCard("Melhor Mês de 2026", d.melhor2026, d.atual, "🏆");
-            document.getElementById(`res-${emp}`).innerHTML = html;
-        }
-
-        window.onload = () => {
-            ['med', 'ecos'].forEach(emp => {
-                ['atual', 'ref2025', 'pior2026', 'melhor2026'].forEach(f => {
-                    if(dados[emp][f] > 0) document.getElementById(`${emp}-${f}`).value = formatar(dados[emp][f]);
-                });
-                calcular(emp);
-            });
-        };
-    </script>
-</body>
-</html>
+            const corTxt =
